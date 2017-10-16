@@ -20,12 +20,13 @@ public class Conexion {
         try
         {
           cadenaConexion = "jdbc:oracle:thin:@localhost:1521:xe";
-          con = DriverManager.getConnection(cadenaConexion, "system","jason");
-        
+          con = DriverManager.getConnection(cadenaConexion, "CABDPROYECTO","oracle");
+          System.out.println(con);
+          System.out.println("se conecto a la base de datos correctamente");
         }
         catch(Exception ex)
         {
-        
+            System.out.println("No se pudo cargar el puente JDBC-ODBC "+ex.getMessage());
         }    
     }
     public Conexion()
