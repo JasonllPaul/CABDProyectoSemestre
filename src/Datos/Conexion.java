@@ -20,7 +20,7 @@ public class Conexion {
         try
         {
           cadenaConexion = "jdbc:oracle:thin:@localhost:1521:xe";
-          con = DriverManager.getConnection(cadenaConexion, "system","oracle");
+          con = DriverManager.getConnection(cadenaConexion, "cabd","oracle");
         
         }
         catch(SQLException ex)

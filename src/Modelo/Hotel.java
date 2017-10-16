@@ -12,14 +12,14 @@ import java.util.Locale;
  *
  * @author JasonllPaul
  */
-public class Ejemplo {
+public class Hotel {
     Conexion dt=new Conexion();
 
     public int insertarDatos( int NIT, String NOMBRE, String DIRECCION, int FECHAFUNDACION ){
         
         String consulta;
         int result;
-        consulta = "insert into EMPRESADISCOGRAFICA (NIT,NOMBRE,DIRECCION,FECHAFUNDACION) VALUES (%s, '%s', '%s', %s)";
+        consulta = "insert into HOTEL (NIT,NOMBRE,DIRECCION,FECHAFUNDACION) VALUES (%s, '%s', '%s', %s)";
         consulta = String.format(consulta,NIT,NOMBRE,DIRECCION,FECHAFUNDACION);
         //Envío la consulta a la capa de acceso a datos
         result = dt.ejecutarDML(consulta);
@@ -29,7 +29,7 @@ public class Ejemplo {
     
     public ResultSet consultarTodos(){
     
-    String consulta="select * from EMPRESADISCOGRAFICA ORDER BY NIT ";
+    String consulta="select * from hotel order by hotId";
     
      ResultSet result = dt.ejecutarSELECT(consulta);
     
