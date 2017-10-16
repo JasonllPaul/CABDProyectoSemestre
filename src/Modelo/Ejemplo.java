@@ -10,7 +10,7 @@ import java.util.Locale;
 
 /**
  *
- * @author usuario
+ * @author JasonllPaul
  */
 public class Ejemplo {
     Conexion dt=new Conexion();
