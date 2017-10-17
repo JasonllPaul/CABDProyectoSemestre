@@ -20,7 +20,7 @@ public class Conexion {
         try
         {
           cadenaConexion = "jdbc:oracle:thin:@localhost:1521:xe";
-          con = DriverManager.getConnection(cadenaConexion, "CABDPROYECTO","oracle");
+          con = DriverManager.getConnection(cadenaConexion, "CABD","oracle");
           System.out.println(con);
           System.out.println("se conecto a la base de datos correctamente");
         }

@@ -28,7 +28,7 @@ public class Datos_Hotel {
     }
     
     public ResultSet consultarTodosHoteles(){
-        String consulta="select * from EMPLEADO ORDER BY HOTID ";
+        String consulta="select * from HOTEL ORDER BY HOTID ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
     }
