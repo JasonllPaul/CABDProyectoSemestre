@@ -9,7 +9,7 @@ package Modelo;
  *
  * @author ALBERT
  */
-public class Modelo_Hotel {
+public class Modelo_Hotel{
     private int hotId;
     private int ciuId;
     private int empDni;

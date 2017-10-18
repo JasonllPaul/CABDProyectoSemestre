@@ -30,6 +30,7 @@ public class MenuHotel extends javax.swing.JDialog {
     private Datos_Categoria categoria;
     private Datos_Empleado empleado;
     private Datos_Hotel hotel;
+    private Conexion conexion;
 
     /**
      * Creates new form MenuHotel
@@ -37,18 +38,20 @@ public class MenuHotel extends javax.swing.JDialog {
      * @param parent Ventana padre de donde es cargado
      * @param modal ventana modal o no
      */
-    public MenuHotel(java.awt.Frame parent, boolean modal) {
+    public MenuHotel(java.awt.Frame parent, boolean modal,Conexion conexion) {
         super(parent, modal);
         initComponents();
+        this.conexion = conexion;
         inicializarAtributos();
+        
     }
 
     private void inicializarAtributos() {
-        departamento = new Datos_Departamento();
-        ciudad = new Datos_Ciudad();
-        categoria = new Datos_Categoria();
-        empleado = new Datos_Empleado();
-        hotel = new Datos_Hotel();
+        departamento = new Datos_Departamento(this.conexion);
+        ciudad = new Datos_Ciudad(this.conexion);
+        categoria = new Datos_Categoria(this.conexion);
+        empleado = new Datos_Empleado(this.conexion);
+        hotel = new Datos_Hotel(this.conexion);
         llenarTablaTodosHoteles();
         llenarDni(cmbDni);
         llenarDni(cmbDni1);
@@ -61,7 +64,7 @@ public class MenuHotel extends javax.swing.JDialog {
     }
 
     public void llenarTablaTodosHoteles() {
-        ResultSet resTodos = hotel.consultarTodosHoteles();
+        ResultSet resTodos = hotel.consultarTodo();
         try {
             tblInformacion.setModel(ConstruirModeloDeDatos(resTodos));
         } catch (SQLException ex) {
@@ -745,7 +748,7 @@ public class MenuHotel extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                MenuHotel dialog = new MenuHotel(new javax.swing.JFrame(), true);
+                MenuHotel dialog = new MenuHotel(new javax.swing.JFrame(), true,null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

@@ -12,15 +12,24 @@ import java.sql.*;
  * @author JasonllPaul
  */
 public class Conexion {
-    private String cadenaConexion;
+    private String cadenaConexion, nombre, contrasenia;
     private Connection con;
+    
+    public Conexion(String nombre, String contrasenia)
+    {   
+        this.nombre = nombre;
+        this.contrasenia = contrasenia;
+        System.out.println("NOMBRRE CONEXION: "+this.nombre+" contra: "+this.contrasenia);
+        inicializarConexion();
+    
+    }
     
     private void inicializarConexion()
     {
         try
         {
           cadenaConexion = "jdbc:oracle:thin:@localhost:1521:xe";
-          con = DriverManager.getConnection(cadenaConexion, "CABD","oracle");
+          con = DriverManager.getConnection(cadenaConexion,nombre,contrasenia);
           System.out.println(con);
           System.out.println("se conecto a la base de datos correctamente");
         }
@@ -28,11 +37,6 @@ public class Conexion {
         {
             System.out.println("No se pudo cargar el puente JDBC-ODBC "+ex.getMessage());
         }    
-    }
-    public Conexion()
-    {
-        inicializarConexion();
-    
     }
     
     
@@ -78,6 +82,10 @@ public class Conexion {
             return null;           
         }    
     
+    }
+    
+    public String getNombre(){
+        return this.nombre;
     }
     
 }

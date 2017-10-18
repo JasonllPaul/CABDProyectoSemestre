@@ -12,11 +12,10 @@ import java.sql.ResultSet;
  * @author JasonllPaul
  */
 public class Datos_Categoria extends Datos {
-
-    Conexion dt = new Conexion();
     
-    public Datos_Categoria(){
+    public Datos_Categoria(Conexion conexion){
         this.nombreTabla = "CATEGORIA";
+        this.dt = conexion;
     }
     
     @Override

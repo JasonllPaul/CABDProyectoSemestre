@@ -13,8 +13,8 @@ import java.sql.ResultSet;
  */
 public class Datos_Departamento extends Datos {
 
-    public Datos_Departamento(){
-        this.dt = new Conexion();
+    public Datos_Departamento(Conexion conexion){
+        this.dt = conexion;
     }
     
     @Override

@@ -12,11 +12,15 @@ import java.sql.ResultSet;
  *
  * @author ALBERT
  */
-public class Datos_Hotel {
+public class Datos_Hotel extends Datos{
 
-    Conexion dt = new Conexion();
-    //Modelo_Cliente cl=new Modelo_Cliente();
+    public Datos_Hotel(Conexion conexion) {
+        this.dt = conexion;
+    }
 
+    
+    
+    
     public int insertarHoteles(Modelo_Hotel hot) {
         String consulta;
         int result;
@@ -28,7 +32,8 @@ public class Datos_Hotel {
         return result;
     }
 
-    public ResultSet consultarTodosHoteles() {
+    @Override
+    public ResultSet consultarTodo() {
         String consulta = "select * from HOTEL ORDER BY HOTID ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;

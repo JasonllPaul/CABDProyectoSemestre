@@ -14,8 +14,8 @@ import java.sql.ResultSet;
  */
 public class Datos_Empleado extends Datos{
      
-     public Datos_Empleado(){
-         this.dt = new Conexion();
+     public Datos_Empleado(Conexion conexion){
+         this.dt = conexion;
      }
     
     public int insertarEmpleados(Modelo_Empleado emp){

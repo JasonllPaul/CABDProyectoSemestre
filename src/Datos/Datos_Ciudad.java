@@ -11,11 +11,14 @@ import java.sql.ResultSet;
  *
  * @author JasonllPaul
  */
-public class Datos_Ciudad {
+public class Datos_Ciudad extends Datos{
 
-    Conexion dt = new Conexion();
-
-    public ResultSet consultarTodasCiudades() {
+    public Datos_Ciudad(Conexion conexion){
+        this.dt = conexion;
+    }
+    
+    @Override
+    public ResultSet consultarTodo() {
         String consulta = "select * from CIUDAD ORDER BY CIUNOMBRE ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;

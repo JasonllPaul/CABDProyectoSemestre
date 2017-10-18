@@ -13,11 +13,13 @@ import Modelo.*;
  *
  * @author ALBERT
  */
-public class Datos_Cliente {
+public class Datos_Cliente extends Datos{
     
-    
-    Conexion dt=new Conexion();
     //Modelo_Cliente cl=new Modelo_Cliente();
+    
+    public Datos_Cliente(Conexion conexion){
+        this.dt = conexion;
+    }
     
     public int insertarClientes(Modelo_Cliente cl){
         String consulta;
@@ -29,7 +31,8 @@ public class Datos_Cliente {
         return result;
     }
     
-    public ResultSet consultarTodosClientes(){
+    @Override
+    public ResultSet consultarTodo(){
         String consulta="select * from CLIENTE ORDER BY CLIDNI ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;

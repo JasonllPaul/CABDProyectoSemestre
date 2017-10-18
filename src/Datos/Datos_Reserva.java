@@ -12,10 +12,11 @@ import java.sql.ResultSet;
  *
  * @author ALBERT
  */
-public class Datos_Reserva {
+public class Datos_Reserva extends Datos{
     
-    Conexion dt=new Conexion();
-    //Modelo_Cliente cl=new Modelo_Cliente();
+    public Datos_Reserva(Conexion conexion){
+        this.dt = conexion;
+    }
     
     public int insertarReservas(Modelo_Reserva res){
         String consulta;
@@ -28,7 +29,8 @@ public class Datos_Reserva {
         return result;
     }
     
-    public ResultSet consultarTodosReversas(){
+    @Override
+    public ResultSet consultarTodo(){
         String consulta="select * from RESERVE ORDER BY RESID ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
