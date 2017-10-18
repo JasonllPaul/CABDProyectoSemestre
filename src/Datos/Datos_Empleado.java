@@ -12,9 +12,11 @@ import java.sql.ResultSet;
  *
  * @author ALBERT
  */
-public class Datos_Empleado {
-     Conexion dt=new Conexion();
-    //Modelo_Cliente cl=new Modelo_Cliente();
+public class Datos_Empleado extends Datos{
+     
+     public Datos_Empleado(){
+         this.dt = new Conexion();
+     }
     
     public int insertarEmpleados(Modelo_Empleado emp){
         String consulta;
@@ -27,7 +29,8 @@ public class Datos_Empleado {
         return result;
     }
     
-    public ResultSet consultarTodosEmpleados(){
+     @Override
+    public ResultSet consultarTodo(){
         String consulta="select * from EMPLEADO ORDER BY EMPDNI ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
@@ -100,7 +103,8 @@ public class Datos_Empleado {
     }
     
     public ResultSet buscarRegistroEmpleados(Modelo_Empleado emp){
-        String consulta="select * from EMPLEADO where EMPDNI = %s";
+        System.out.println("ENTRANDO EL: "+emp.getEmpDni());
+        String consulta="select * from EMPLEADO where EMPDNI = "+emp.getEmpDni();
         consulta = String.format(consulta,emp.getEmpDni());
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
