@@ -103,7 +103,6 @@ public class Datos_Empleado extends Datos{
     }
     
     public ResultSet buscarRegistroEmpleados(Modelo_Empleado emp){
-        System.out.println("ENTRANDO EL: "+emp.getEmpDni());
         String consulta="select * from EMPLEADO where EMPDNI = "+emp.getEmpDni();
         consulta = String.format(consulta,emp.getEmpDni());
         ResultSet result = dt.ejecutarSELECT(consulta);

@@ -17,12 +17,17 @@ public class Modelo_Hotel {
     private String hotNombre;
     private String hotDireccion;
 
-    public Modelo_Hotel(int hotId, int ciuId, int empDni, int catId, String hotNombre) {
+    public Modelo_Hotel(int hotId){
+        this.hotId = hotId;
+    }
+    
+    public Modelo_Hotel(int hotId, int ciuId, int empDni, int catId, String hotNombre, String direccion) {
         this.hotId = hotId;
         this.ciuId = ciuId;
         this.empDni = empDni;
         this.catId = catId;
         this.hotNombre = hotNombre;
+        this.hotDireccion = direccion;
     }
 
     public int getHotId() {

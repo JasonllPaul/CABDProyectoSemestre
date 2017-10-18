@@ -13,58 +13,67 @@ import java.sql.ResultSet;
  * @author ALBERT
  */
 public class Datos_Hotel {
-    Conexion dt=new Conexion();
+
+    Conexion dt = new Conexion();
     //Modelo_Cliente cl=new Modelo_Cliente();
-    
-    public int insertarHoteles(Modelo_Hotel hot){
+
+    public int insertarHoteles(Modelo_Hotel hot) {
         String consulta;
         int result;
-        consulta= "insert into HOTEL (HOTID,CIUID,EMPDNI,CATID,HOTNOMBRE,HOTDIRECCION) "
+        consulta = "insert into HOTEL (HOTID,CIUID,EMPDNI,CATID,HOTNOMBRE,HOTDIRECCION) "
                 + "VALUES (%s, %s, %s, %s, '%s', '%s')";
-        consulta=String.format(consulta,hot.getHotId(),hot.getCiuId(),hot.getEmpDni(),
-                 hot.getCatId(),hot.getHotNombre(),hot.getHotDireccion());
-        result=dt.ejecutarDML(consulta);
+        consulta = String.format(consulta, hot.getHotId(), hot.getCiuId(), hot.getEmpDni(),
+                hot.getCatId(), hot.getHotNombre(), hot.getHotDireccion());
+        result = dt.ejecutarDML(consulta);
         return result;
     }
-    
-    public ResultSet consultarTodosHoteles(){
-        String consulta="select * from HOTEL ORDER BY HOTID ";
-        ResultSet result = dt.ejecutarSELECT(consulta);
-        return result;
-    }
-    
-    public int actualizarRegistroHoteles(Modelo_Hotel hot){
-        String consulta="";
 
-        if(hot.getHotId()>0 && hot.getCiuId()>0 && hot.getEmpDni()>0 && hot.getCatId()>0
-                && hot.getHotNombre().length()>0 && hot.getHotDireccion().length()>0){ 
-        consulta="update HOTEL SET CIUID = %s,EMPDNI = '%s', CATID = %s, HOTNOMBRE = '%s', HOTDIRECCION = '%s' where HOTID = %s ";
-        }
-           
-        int result = dt.ejecutarDML(consulta);
-        
-        return result;
-    }
-    
-    public ResultSet buscarRegistroHoteles(Modelo_Hotel hot){
-        String consulta="select * from HOTEL where HOTID = %s";
-        consulta = String.format(consulta,hot.getHotId());
+    public ResultSet consultarTodosHoteles() {
+        String consulta = "select * from HOTEL ORDER BY HOTID ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
     }
-    
-    public ResultSet retornarHotId(){
-        String consulta="select HOTID,HOTNOMBRE from HOTEL";
-        consulta=String.format(consulta);
-        ResultSet result =dt.ejecutarSELECT(consulta);
+
+    public int actualizarRegistroHoteles(Modelo_Hotel hot) {
+        String consulta = "";
+
+        if (hot.getHotId() > 0 && hot.getCiuId() > 0 && hot.getEmpDni() > 0 && hot.getCatId() > 0
+                && hot.getHotNombre().length() > 0 && hot.getHotDireccion().length() > 0) {
+            consulta = "update HOTEL SET CIUID = %s,EMPDNI = '%s', CATID = %s, HOTNOMBRE = '%s', HOTDIRECCION = '%s' where HOTID = %s ";
+        }
+
+        int result = dt.ejecutarDML(consulta);
+
         return result;
     }
-    
-    public int comprobarExistenciaHoteles(){
-        String consulta="select HOTID from HOTEL";
+
+    public ResultSet buscarRegistroHoteles(Modelo_Hotel hot) {
+        String consulta = "select * from HOTEL where HOTID = %s";
+        consulta = String.format(consulta, hot.getHotId());
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
+
+    public ResultSet retornarHotId() {
+        String consulta = "select HOTID,HOTNOMBRE from HOTEL";
+        consulta = String.format(consulta);
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
+
+    public int comprobarExistenciaHoteles() {
+        String consulta = "select HOTID from HOTEL";
         consulta = String.format(consulta);
         int result = dt.ejecutarDML(consulta);
         return result;
     }
-    
+
+    public int borrarHotel(int id) {
+        String consulta = "delete from hotel\n"
+                + "where hotId = " + id;
+        consulta = String.format(consulta);
+        int result = dt.ejecutarDML(consulta);
+        return result;
+    }
+
 }
