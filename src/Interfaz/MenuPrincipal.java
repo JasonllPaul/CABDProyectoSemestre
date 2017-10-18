@@ -29,14 +29,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
         initComponents();
     }
 
-    
-    public void inicializarAtributos(){
+    public void inicializarAtributos() {
         this.hotel = new Datos_Hotel(conexion);
         llenarTablaTodosHoteles();
-       
+
     }
-    
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -49,15 +47,17 @@ public class MenuPrincipal extends javax.swing.JFrame {
         escritorio = new javax.swing.JLayeredPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblInformacion = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
         lblBaseDatos = new javax.swing.JLabel();
         lblBaseDatosConexion = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -75,19 +75,41 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jScrollPane1.setViewportView(tblInformacion);
 
         escritorio.add(jScrollPane1);
-        jScrollPane1.setBounds(30, 110, 740, 130);
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("CADENA HOTELERA");
-        escritorio.add(jLabel1);
-        jLabel1.setBounds(250, 50, 280, 40);
+        jScrollPane1.setBounds(30, 140, 740, 130);
 
         lblBaseDatos.setText("CONECTADO A:");
         escritorio.add(lblBaseDatos);
         lblBaseDatos.setBounds(40, 290, 170, 40);
         escritorio.add(lblBaseDatosConexion);
         lblBaseDatosConexion.setBounds(40, 324, 210, 30);
+
+        jPanel1.setBackground(new java.awt.Color(102, 51, 0));
+        jPanel1.setForeground(new java.awt.Color(102, 51, 0));
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("CADENA HOTELERA");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(268, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(242, 242, 242))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+
+        escritorio.add(jPanel1);
+        jPanel1.setBounds(0, 0, 790, 100);
 
         jMenu1.setText("Conexión");
 
@@ -119,6 +141,14 @@ public class MenuPrincipal extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem1);
 
+        jMenuItem4.setText("Empleado");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem4);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -139,29 +169,28 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        
-        if(conexion != null){
-        MenuHotel mh = new MenuHotel(this,true,this.conexion);
-        mh.setVisible(true);
-        llenarTablaTodosHoteles();
+
+        if (conexion != null) {
+            MenuHotel mh = new MenuHotel(this, true, this.conexion);
+            mh.setVisible(true);
+            llenarTablaTodosHoteles();
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "No hay conexión con una base de datos");
         }
-        else{
-            JOptionPane.showMessageDialog(rootPane,"No hay conexión con una base de datos");
-        }
-        
+
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         MenuConexion mc = new MenuConexion(this, rootPaneCheckingEnabled);
         mc.setVisible(true);
-        System.out.println(mc.getConexion()+" "+mc.getContrasenia());
-        conexion = new Conexion(mc.getConexion(),mc.getContrasenia());
-        if(conexion != null){
-        inicializarAtributos();
-        llenarTablaTodosHoteles();
-        lblBaseDatosConexion.setText(hotel.getConexion().getNombre());
+        System.out.println(mc.getConexion() + " " + mc.getContrasenia());
+        conexion = new Conexion(mc.getConexion(), mc.getContrasenia());
+        if (conexion != null) {
+            inicializarAtributos();
+            llenarTablaTodosHoteles();
+            lblBaseDatosConexion.setText(hotel.getConexion().getNombre());
         }
-        
+
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
@@ -169,6 +198,18 @@ public class MenuPrincipal extends javax.swing.JFrame {
         lblBaseDatosConexion.setText("Desconectado");
         tblInformacion.removeAll();
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+
+        if (conexion != null) {
+            MenuEmpleado me = new MenuEmpleado(this, true, this.conexion);
+            me.setVisible(true);
+            llenarTablaTodosHoteles();
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "No hay conexión con una base de datos");
+        }
+
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private static DefaultTableModel ConstruirModeloDeDatos(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
@@ -202,9 +243,9 @@ public class MenuPrincipal extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         MenuPrincipal menu = new MenuPrincipal();
-       menu.setVisible(true);
+        menu.setVisible(true);
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLayeredPane escritorio;
     private javax.swing.JLabel jLabel1;
@@ -214,6 +255,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBaseDatos;
     private javax.swing.JLabel lblBaseDatosConexion;
