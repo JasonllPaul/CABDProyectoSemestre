@@ -1,0 +1,6 @@
+Los datos de la tabla empleado solo se pueden cargar por medio de insert into
+estos estan en el acrchivo InsertIntoEmpRes
+lo mismo pasa con los datos de la tabla Reserva
+
+Para cargar los datos de la tabla hotel primero se cargan los de empleados, luego se cierra sql 
+developer de lo contrario no carga los datos de esta tabla por medio del ControlHotel.bat

@@ -1,0 +1,2 @@
+En caso de Error , seleccionar la libreria ojdbc8 la cual esta en la carpeta principal
+del proyecto.
