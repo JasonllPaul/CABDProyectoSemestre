@@ -18,9 +18,6 @@ public class Datos_Hotel extends Datos{
         this.dt = conexion;
     }
 
-    
-    
-    
     public int insertarHoteles(Modelo_Hotel hot) {
         String consulta;
         int result;

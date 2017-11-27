@@ -9,7 +9,7 @@ package Modelo;
  *
  * @author ALBERT
  */
-public class Modelo_Hotel{
+public class Modelo_Hotel extends Modelo{
     private int hotId;
     private int ciuId;
     private int empDni;
@@ -76,6 +76,11 @@ public class Modelo_Hotel{
 
     public void setHotDireccion(String hotDireccion) {
         this.hotDireccion = hotDireccion;
+    }
+
+    @Override
+    public String registrar() {
+        return "JasonllPaul";
     }
     
     

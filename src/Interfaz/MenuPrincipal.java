@@ -5,6 +5,7 @@
 package Interfaz;
 
 import Datos.*;
+import Interfaz.Submenu.SubMenuHotel;
 import Modelo.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,22 +18,27 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author usuario
  */
-public class MenuPrincipal extends javax.swing.JFrame {
+public final class MenuPrincipal extends javax.swing.JFrame {
 
+    
+    private final String NOMBRE = "CABD", CONTRASENIA = "oracle";
     Conexion conexion;
-    Datos_Hotel hotel;
+    Datos_Hotel hotelControlador;
+    Modelo_Hotel hotelSeleccionado;
+    
 
     /**
      * Creates new form MenuConsulta
      */
     public MenuPrincipal() {
         initComponents();
+        inicializarAtributos();
     }
 
     public void inicializarAtributos() {
-        this.hotel = new Datos_Hotel(conexion);
+        conexion = new Conexion(this.NOMBRE,this.CONTRASENIA);
+        this.hotelControlador = new Datos_Hotel(conexion);
         llenarTablaTodosHoteles();
-
     }
 
     /**
@@ -51,6 +57,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         lblBaseDatosConexion = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        btnReserva = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -63,15 +71,17 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         tblInformacion.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1"
             }
         ));
+        tblInformacion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblInformacionMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblInformacion);
 
         escritorio.add(jScrollPane1);
@@ -110,6 +120,24 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         escritorio.add(jPanel1);
         jPanel1.setBounds(0, 0, 790, 100);
+
+        btnReserva.setText("Crear Reserva");
+        btnReserva.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReservaActionPerformed(evt);
+            }
+        });
+        escritorio.add(btnReserva);
+        btnReserva.setBounds(540, 300, 90, 30);
+
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        escritorio.add(jButton1);
+        jButton1.setBounds(250, 320, 73, 23);
 
         jMenu1.setText("Conexión");
 
@@ -184,11 +212,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
         MenuConexion mc = new MenuConexion(this, rootPaneCheckingEnabled);
         mc.setVisible(true);
         System.out.println(mc.getConexion() + " " + mc.getContrasenia());
-        conexion = new Conexion(mc.getConexion(), mc.getContrasenia());
+        conexion = new Conexion(this.NOMBRE,this.CONTRASENIA);
         if (conexion != null) {
             inicializarAtributos();
             llenarTablaTodosHoteles();
-            lblBaseDatosConexion.setText(hotel.getConexion().getNombre());
+            lblBaseDatosConexion.setText(hotelControlador.getConexion().getNombre());
         }
 
     }//GEN-LAST:event_jMenuItem2ActionPerformed
@@ -211,9 +239,57 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void tblInformacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInformacionMouseClicked
+        try{
+        if(evt.getButton() == 3){ // 3 es click derecho
+            reservarHotel();
+            SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(),this.hotelSeleccionado);
+            sm.setVisible(true);
+        }
+        }catch(Exception e){
+            System.out.println("ERROR: "+e.getMessage());
+        }
+    }//GEN-LAST:event_tblInformacionMouseClicked
+
+    private void btnReservaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservaActionPerformed
+        reservarHotel();
+        
+        MenuReserva mr = new MenuReserva(this,true, hotelSeleccionado);
+        mr.setVisible(true);
+    }//GEN-LAST:event_btnReservaActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    
+        
+ tblInformacion.setEnabled(false);
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    
+    public static void registrar(Modelo modelo){
+        
+        System.out.println(modelo.registrar());
+        
+    }
+    
+    public void reservarHotel(){
+        int pos = tblInformacion.getSelectedRow(); // posición de la fila seleccionada
+        int numColumnas = tblInformacion.getColumnCount(); // número de columnas del modelo
+        
+        int hotId = Integer.parseInt(tblInformacion.getValueAt(pos,0).toString());
+        int ciuId = Integer.parseInt(tblInformacion.getValueAt(pos,1).toString());
+        int empdni = Integer.parseInt(tblInformacion.getValueAt(pos,2).toString());
+        int catId = Integer.parseInt(tblInformacion.getValueAt(pos,3).toString());
+        String hotNombre = tblInformacion.getValueAt(pos,4).toString();
+        String hotDireccion = tblInformacion.getValueAt(pos,5).toString();
+        
+        
+        hotelSeleccionado = new Modelo_Hotel(hotId,ciuId,empdni,catId,hotNombre,hotDireccion);
+    }
+    
     private static DefaultTableModel ConstruirModeloDeDatos(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
-        Vector<String> columnNames = new Vector<String>();
+        Vector<String> columnNames = new Vector<>();
         int columnCount = metaData.getColumnCount();
         for (int column = 1; column <= columnCount; column++) {
             columnNames.add(metaData.getColumnName(column));
@@ -230,7 +306,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     public void llenarTablaTodosHoteles() {
-        ResultSet resTodos = hotel.consultarTodo();
+        ResultSet resTodos = hotelControlador.consultarTodo();
         try {
             tblInformacion.setModel(ConstruirModeloDeDatos(resTodos));
         } catch (SQLException ex) {
@@ -247,7 +323,9 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnReserva;
     private javax.swing.JLayeredPane escritorio;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;

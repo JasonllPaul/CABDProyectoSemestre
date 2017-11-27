@@ -12,7 +12,10 @@ import java.sql.*;
  * @author JasonllPaul
  */
 public class Conexion {
-    private String cadenaConexion, nombre, contrasenia;
+
+    private static String cadenaConexion = "";
+    private static String nombre = "";
+    private static String contrasenia = "";
     private Connection con;
     
     public Conexion(String nombre, String contrasenia)
