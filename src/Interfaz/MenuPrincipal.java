@@ -10,6 +10,7 @@ import Modelo.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -343,7 +344,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     }
 
     public void llenarTablaTodasReservas() {
-        ResultSet resTodos = habitacionControlador.consultarHabitacion("Ocupado",2);
+        ResultSet resTodos = reservaControlador.consultarTodo();
         try {
             tblReserva.setModel(ConstruirModeloDeDatos(resTodos));
         } catch (SQLException ex) {

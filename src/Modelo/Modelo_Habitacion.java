@@ -14,6 +14,10 @@ public class Modelo_Habitacion extends Modelo{
     private String habubicacion;
     private String habaireacondicionado;
 
+    public Modelo_Habitacion(){
+        this.habid = 0;
+    }
+    
     public Modelo_Habitacion(int habid, int hotid, int tipid, String hab, String habdescripcion, int habnumerocamas, int numerotv, String habubicacion, String habaireacondicionado) {
         this.habid = habid;
         this.hotid = hotid;

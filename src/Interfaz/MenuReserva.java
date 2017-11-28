@@ -6,15 +6,19 @@
 package Interfaz;
 
 import Datos.Conexion;
-import Datos.Datos;
+import Datos.Datos_Comprende;
 import Datos.Datos_Habitacion;
 import Datos.Datos_Reserva;
 import Interfaz.Submenu.CalculoReserva;
+import Modelo.Modelo_Comprende;
+import Modelo.Modelo_Habitacion;
 import Modelo.Modelo_Reserva;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
@@ -22,13 +26,16 @@ import javax.swing.JOptionPane;
  *
  * @author JasonllPaul
  */
-public class MenuReserva extends javax.swing.JDialog {
+public final class MenuReserva extends javax.swing.JDialog {
 
     Modelo.Modelo_Reserva reserva;
     Modelo.Modelo_Hotel hotel;
+    Modelo.Modelo_Comprende comprende;
     Datos_Habitacion habitacionControlador;
+    Datos_Comprende comprendeControlador;
     Datos_Reserva reservaControlador;
     Conexion conexion;
+    boolean calculado;
 
     /**
      * Creates new form MenuReserva
@@ -41,17 +48,19 @@ public class MenuReserva extends javax.swing.JDialog {
     public MenuReserva(java.awt.Frame parent, boolean modal, Modelo.Modelo_Hotel hotel, Conexion conexion) {
         super(parent, modal);
         initComponents();
+        this.calculado = false;
         this.hotel = hotel;
         this.conexion = conexion;
         habitacionControlador = new Datos_Habitacion(conexion);
+        reservaControlador = new Datos_Reserva(conexion);
+        comprendeControlador = new Datos_Comprende(conexion);
         reserva = new Modelo_Reserva();
         lblTitulo2.setText(hotel.getHotId() + ". " + hotel.getHotNombre().trim());
         cargarFechas();
         cargarCombo(cmbHabitaciones);
     }
 
-    
-    public void cargarCombo(JComboBox<String> cmb){
+    public void cargarCombo(JComboBox<String> cmb) {
         cmb.removeAllItems();
         ArrayList habitaciones = getValoresTabla("HABID");
 
@@ -59,9 +68,39 @@ public class MenuReserva extends javax.swing.JDialog {
             cmb.addItem(habitaciones.get(i).toString());
         }
     }
-    
+
+    public int asignarHabitaciones() {
+        int respuesta = 0;
+        for (int i = 0; i < cmbHabitaciones2.getItemCount(); i++) {
+            comprende = new Modelo_Comprende();
+            comprende.setResid(reserva.getResId());
+            comprende.setHabid(Integer.parseInt(cmbHabitaciones2.getItemAt(i)));
+            respuesta = comprendeControlador.insertar(comprende);
+            if (respuesta == 0) {
+                break;
+            }
+        }
+
+        if (respuesta == 1) { // La respuesta es positiva, se procede a reflejarlo en la base de datos
+            System.out.println("ENTRA");
+            for (int i = 0; i < cmbHabitaciones2.getItemCount(); i++) {
+                Modelo_Habitacion habitacion = new Modelo_Habitacion();
+                habitacion.setHabid(Integer.parseInt(cmbHabitaciones2.getItemAt(i)));
+                habitacion.setHab("Ocupado");
+                respuesta = habitacionControlador.actualizarEstadoHabitacion(habitacion);
+                System.out.println("respuesta : " + respuesta);
+                if (respuesta == 0) {
+                    System.out.println("paila con la act");
+                    break;
+                }
+            }
+        }
+
+        return respuesta;
+    }
+
     public ArrayList getValoresTabla(String nombreColumna) {
-        ResultSet resTodos = habitacionControlador.consultarHabitacion("Libre",hotel.getHotId());
+        ResultSet resTodos = habitacionControlador.consultarHabitacion("Libre", hotel.getHotId());
         ArrayList<String> array = new ArrayList<>();
         try {
             while (resTodos.next()) {
@@ -72,7 +111,7 @@ public class MenuReserva extends javax.swing.JDialog {
         }
         return array;
     }
-    
+
     public void cargarFechas() {
         Date fecha = new Date();
         dateInicio.setDate(fecha);
@@ -437,42 +476,80 @@ public class MenuReserva extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        try {
-            inicialiarReserva();
-            System.out.println(reservaControlador.insertarReservas(reserva));
-            JOptionPane.showMessageDialog(this, "Reserva registrada con éxito");
-        } catch (java.lang.NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
+        if (calculado) {
+            try {
+                inicialiarReserva();
+
+                if (reservaControlador.insertarReservas(reserva) == 1) {
+
+                    if (asignarHabitaciones() == 1) {
+                        JOptionPane.showMessageDialog(this, "Reserva registrada con éxito");
+                        this.dispose();
+                    }
+                } else {
+                    System.out.println("Reserva no registrada");
+                }
+            } catch (java.lang.NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
+            } catch (SQLException ex) {
+                Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(this,"Por favor calcule el total");
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
-        inicialiarReserva();
-        CalculoReserva cr = new CalculoReserva(null, true, reserva);
-        cr.setVisible(true);
 
+        if (cmbHabitaciones2.getItemCount() > 0) {
+            try {
+                inicialiarReserva();
+                CalculoReserva cr = new CalculoReserva(null, true, reserva, cmbHabitaciones2.getItemCount());
+                txtCalculo.setText("$"+cr.getCalculo());
+                cr.setVisible(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas para calcular el total");
+        }
     }//GEN-LAST:event_btnCalcularActionPerformed
 
     private void btnAsignarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsignarActionPerformed
-        cmbHabitaciones2.addItem(cmbHabitaciones.getSelectedItem().toString());
-        cmbHabitaciones.removeItem(cmbHabitaciones.getSelectedItem()); 
+
+        if (cmbHabitaciones.getItemCount() > 0) {
+            cmbHabitaciones2.addItem(cmbHabitaciones.getSelectedItem().toString());
+            cmbHabitaciones.removeItem(cmbHabitaciones.getSelectedItem());
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay habitaciones disponibles en este Hotel");
+        }
     }//GEN-LAST:event_btnAsignarActionPerformed
 
     private void btnDesasignarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDesasignarActionPerformed
-        cmbHabitaciones.addItem(cmbHabitaciones2.getSelectedItem().toString());
-        cmbHabitaciones2.removeItem(cmbHabitaciones2.getSelectedItem());
+        if (cmbHabitaciones2.getItemCount() > 0) {
+            cmbHabitaciones.addItem(cmbHabitaciones2.getSelectedItem().toString());
+            cmbHabitaciones2.removeItem(cmbHabitaciones2.getSelectedItem());
+        } else {
+            JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas");
+        }
     }//GEN-LAST:event_btnDesasignarActionPerformed
 
-    public void inicialiarReserva() {
+    public void inicialiarReserva() throws SQLException {
+        ResultSet res = reservaControlador.selectSequence(); // Obtiene el valor del autoincremental para la llave primaria
+        ArrayList<String> array = new ArrayList<>();
+        while (res.next()) {
+            reserva.setResId(Integer.parseInt(res.getObject("NEXTVAL").toString()));
+        }
         reserva.setCliDni(Integer.parseInt(txtDni.getText()));
         reserva.setResPersonas(Integer.parseInt(cmbPersonas.getSelectedItem().toString()));
         reserva.setResFechaInicio(dateInicio.getDate());
         reserva.setResFechaFin(dateFin.getDate());
         reserva.setHotId(hotel.getHotId());
-        reserva.setRestotal(10);
+        reserva.setRestotal(Float.parseFloat(txtCalculo.getText().replace("$","")));
         reservaControlador = new Datos_Reserva(this.conexion);
     }
-    
+
     /**
      * @param args the command line arguments
      */

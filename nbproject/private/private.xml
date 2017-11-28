@@ -1,18 +1,3 @@
-<<<<<<< Updated upstream
-<?xml version="1.0" encoding="UTF-8"?>
-<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/ALBERT/Documents/NetBeansProjects/CABDProyectoSemestre/src/Interfaz/MenuConexion.java</file>
-            <file>file:/C:/Users/ALBERT/Documents/NetBeansProjects/CABDProyectoSemestre/src/Interfaz/MenuReserva.java</file>
-            <file>file:/C:/Users/ALBERT/Documents/NetBeansProjects/CABDProyectoSemestre/src/Interfaz/MenuEmpleado.java</file>
-            <file>file:/C:/Users/ALBERT/Documents/NetBeansProjects/CABDProyectoSemestre/src/Interfaz/MenuHotel.java</file>
-            <file>file:/C:/Users/ALBERT/Documents/NetBeansProjects/CABDProyectoSemestre/src/Interfaz/MenuPrincipal.java</file>
-        </group>
-    </open-files>
-</project-private>
-=======
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
@@ -20,9 +5,13 @@
         <group>
             <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Interfaz/MenuPrincipal.java</file>
             <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Interfaz/MenuReserva.java</file>
-            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Interfaz/Submenu/SubMenuHotel.java</file>
-            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Modelo/Modelo_Reserva.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Interfaz/MenuEmpleado.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Datos/Datos.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Datos/Datos_Comprende.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Modelo/Modelo_Habitacion.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Datos/Datos_Reserva.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Modelo/Modelo_Comprende.java</file>
+            <file>file:/C:/Users/JasonllPaul/Desktop/CABDProyectoSemestre/src/Datos/Datos_Habitacion.java</file>
         </group>
     </open-files>
 </project-private>
->>>>>>> Stashed changes

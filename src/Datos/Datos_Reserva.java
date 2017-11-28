@@ -29,13 +29,19 @@ public class Datos_Reserva extends Datos{
         String fechaFin = "";
         if(res.getResFechaFin() != null){
         fechaFin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(res.getResFechaFin());}
-        consulta=String.format(consulta,"SEQ_RESERVA.NEXTVAL",res.getCliDni(),res.getHotId(),
+        consulta=String.format(consulta,res.getResId(),res.getCliDni(),res.getHotId(),
                 res.getResPersonas(),fechaInicio,fechaFin,res.getRestotal());
         System.out.println("sql: "+consulta);
         result=dt.ejecutarDML(consulta);
         return result;
     }
     
+    
+    public ResultSet selectSequence(){
+        String consulta="select SEQ_RESERVA.NEXTVAL from dual";
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
     
     @Override
     public ResultSet consultarTodo(){
