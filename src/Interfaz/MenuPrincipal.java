@@ -20,12 +20,13 @@ import javax.swing.table.DefaultTableModel;
  */
 public final class MenuPrincipal extends javax.swing.JFrame {
 
-    
     private final String NOMBRE = "CABD", CONTRASENIA = "oracle";
     Conexion conexion;
     Datos_Hotel hotelControlador;
+    Datos_Reserva reservaControlador;
+    Datos_Habitacion habitacionControlador;
     Modelo_Hotel hotelSeleccionado;
-    
+    Modelo_Habitacion habitacion;
 
     /**
      * Creates new form MenuConsulta
@@ -36,9 +37,12 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     }
 
     public void inicializarAtributos() {
-        conexion = new Conexion(this.NOMBRE,this.CONTRASENIA);
+        conexion = new Conexion(this.NOMBRE, this.CONTRASENIA);
         this.hotelControlador = new Datos_Hotel(conexion);
+        this.reservaControlador = new Datos_Reserva(conexion);
+        this.habitacionControlador = new Datos_Habitacion(conexion);
         llenarTablaTodosHoteles();
+        llenarTablaTodasReservas();
     }
 
     /**
@@ -59,6 +63,8 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         btnReserva = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblReserva = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -128,7 +134,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
             }
         });
         escritorio.add(btnReserva);
-        btnReserva.setBounds(540, 300, 90, 30);
+        btnReserva.setBounds(620, 280, 90, 30);
 
         jButton1.setText("jButton1");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -137,7 +143,23 @@ public final class MenuPrincipal extends javax.swing.JFrame {
             }
         });
         escritorio.add(jButton1);
-        jButton1.setBounds(250, 320, 73, 23);
+        jButton1.setBounds(370, 290, 73, 23);
+
+        tblReserva.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(tblReserva);
+
+        escritorio.add(jScrollPane2);
+        jScrollPane2.setBounds(90, 370, 452, 150);
 
         jMenu1.setText("Conexión");
 
@@ -189,7 +211,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 442, Short.MAX_VALUE)
+            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
         );
 
         pack();
@@ -212,7 +234,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         MenuConexion mc = new MenuConexion(this, rootPaneCheckingEnabled);
         mc.setVisible(true);
         System.out.println(mc.getConexion() + " " + mc.getContrasenia());
-        conexion = new Conexion(this.NOMBRE,this.CONTRASENIA);
+        conexion = new Conexion(this.NOMBRE, this.CONTRASENIA);
         if (conexion != null) {
             inicializarAtributos();
             llenarTablaTodosHoteles();
@@ -240,53 +262,59 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void tblInformacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInformacionMouseClicked
-        try{
-        if(evt.getButton() == 3){ // 3 es click derecho
-            reservarHotel();
-            SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(),this.hotelSeleccionado);
-            sm.setVisible(true);
-        }
-        }catch(Exception e){
-            System.out.println("ERROR: "+e.getMessage());
+        try {
+            if ( (evt.getButton() == 3) && (tblInformacion.getSelectedRow()!= -1) ) { // 3 es click derecho
+                reservarHotel();
+                SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(), this.hotelSeleccionado,conexion);
+                sm.setVisible(true);
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
     }//GEN-LAST:event_tblInformacionMouseClicked
 
     private void btnReservaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservaActionPerformed
-        reservarHotel();
-        
-        MenuReserva mr = new MenuReserva(this,true, hotelSeleccionado);
-        mr.setVisible(true);
+        try {
+            reservarHotel();
+
+            MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado,this.conexion);
+            mr.setVisible(true);
+        } catch (NullPointerException e) {
+            System.out.println("No ha seleccionado una fila de hotel");
+        }
     }//GEN-LAST:event_btnReservaActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    
+
         
- tblInformacion.setEnabled(false);
         
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    
-    public static void registrar(Modelo modelo){
-        
+    public static void registrar(Modelo modelo) {
+
         System.out.println(modelo.registrar());
-        
+
     }
-    
-    public void reservarHotel(){
-        int pos = tblInformacion.getSelectedRow(); // posición de la fila seleccionada
-        int numColumnas = tblInformacion.getColumnCount(); // número de columnas del modelo
-        
-        int hotId = Integer.parseInt(tblInformacion.getValueAt(pos,0).toString());
-        int ciuId = Integer.parseInt(tblInformacion.getValueAt(pos,1).toString());
-        int empdni = Integer.parseInt(tblInformacion.getValueAt(pos,2).toString());
-        int catId = Integer.parseInt(tblInformacion.getValueAt(pos,3).toString());
-        String hotNombre = tblInformacion.getValueAt(pos,4).toString();
-        String hotDireccion = tblInformacion.getValueAt(pos,5).toString();
-        
-        
-        hotelSeleccionado = new Modelo_Hotel(hotId,ciuId,empdni,catId,hotNombre,hotDireccion);
+
+    public void reservarHotel() {
+        try {
+            int pos = tblInformacion.getSelectedRow(); // posición de la fila seleccionada
+            int numColumnas = tblInformacion.getColumnCount(); // número de columnas del modelo
+
+            int hotId = Integer.parseInt(tblInformacion.getValueAt(pos, 0).toString());
+            int ciuId = Integer.parseInt(tblInformacion.getValueAt(pos, 1).toString());
+            int empdni = Integer.parseInt(tblInformacion.getValueAt(pos, 2).toString());
+            int catId = Integer.parseInt(tblInformacion.getValueAt(pos, 3).toString());
+            String hotNombre = tblInformacion.getValueAt(pos, 4).toString();
+            String hotDireccion = tblInformacion.getValueAt(pos, 5).toString();
+
+            hotelSeleccionado = new Modelo_Hotel(hotId, ciuId, empdni, catId, hotNombre, hotDireccion);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("No ha seleccionado una fila de hotel");
+        }
     }
-    
+
     private static DefaultTableModel ConstruirModeloDeDatos(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
         Vector<String> columnNames = new Vector<>();
@@ -314,6 +342,14 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         }
     }
 
+    public void llenarTablaTodasReservas() {
+        ResultSet resTodos = habitacionControlador.consultarHabitacion("Ocupado",2);
+        try {
+            tblReserva.setModel(ConstruirModeloDeDatos(resTodos));
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -336,8 +372,10 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblBaseDatos;
     private javax.swing.JLabel lblBaseDatosConexion;
     private javax.swing.JTable tblInformacion;
+    private javax.swing.JTable tblReserva;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,5 +1,6 @@
 package Interfaz.Submenu;
 
+import Datos.Conexion;
 import Interfaz.MenuReserva;
 import java.awt.Point;
 
@@ -14,11 +15,14 @@ public class SubMenuHotel extends javax.swing.JDialog {
      * @param point
      */
     Modelo.Modelo_Hotel hotel;
+    Conexion conexion;
     
-    public SubMenuHotel(Point point, Modelo.Modelo_Hotel hotel) {
+    public SubMenuHotel(Point point, Modelo.Modelo_Hotel hotel, Conexion conexion) {
         initComponents();
         this.setLocation(point);
         this.hotel = hotel;
+        this.conexion = conexion;
+        
     }
 
     /**
@@ -51,6 +55,7 @@ public class SubMenuHotel extends javax.swing.JDialog {
         lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTitulo.setText("RESERVAS");
 
+        lbl1.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
         lbl1.setText("Crear Reserva Nueva");
         lbl1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lbl1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -73,12 +78,13 @@ public class SubMenuHotel extends javax.swing.JDialog {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(lblTitulo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(2, 2, 2)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lbl1)
-                .addGap(0, 174, Short.MAX_VALUE))
+                .addGap(0, 162, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -101,7 +107,7 @@ public class SubMenuHotel extends javax.swing.JDialog {
 
     private void lbl1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl1MouseClicked
         
-        MenuReserva mr = new MenuReserva(null, true,this.hotel);
+        MenuReserva mr = new MenuReserva(null, true,this.hotel,this.conexion);
         mr.setVisible(true);
         
     }//GEN-LAST:event_lbl1MouseClicked
@@ -136,7 +142,7 @@ public class SubMenuHotel extends javax.swing.JDialog {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            new SubMenuHotel(null,null).setVisible(true);
+            new SubMenuHotel(null,null,null).setVisible(true);
         });
     }
 

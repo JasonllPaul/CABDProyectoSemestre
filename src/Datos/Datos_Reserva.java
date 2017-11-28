@@ -7,6 +7,7 @@ package Datos;
 
 import Modelo.Modelo_Reserva;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -21,17 +22,24 @@ public class Datos_Reserva extends Datos{
     public int insertarReservas(Modelo_Reserva res){
         String consulta;
         int result;
-        consulta= "insert into RESERVA (RESID,CLIDNI,HOTID,RESPERSONAS,RESFEHCAINICIO,RESFECHAFIN,RESTOTAL) "
-                + "VALUES (%s, %s, %s, %s, '%s', '%s', %s)";
-        consulta=String.format(consulta,res.getResId(),res.getCliDni(),res.getHotId(),
-                res.getResPersonas(),res.getResFechaInicio(),res.getResFechaFin(),res.getRestotal());
+        consulta= "insert into RESERVA (RESID,CLIDNI,HOTID,RESPERSONAS,RESFECHAINICIO,RESFECHAFIN,RESTOTAL) "
+                + "VALUES (%s, %s, %s, %s,TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS'),TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS'), %s)";
+        
+        String fechaInicio = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(res.getResFechaInicio());
+        String fechaFin = "";
+        if(res.getResFechaFin() != null){
+        fechaFin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(res.getResFechaFin());}
+        consulta=String.format(consulta,"SEQ_RESERVA.NEXTVAL",res.getCliDni(),res.getHotId(),
+                res.getResPersonas(),fechaInicio,fechaFin,res.getRestotal());
+        System.out.println("sql: "+consulta);
         result=dt.ejecutarDML(consulta);
         return result;
     }
     
+    
     @Override
     public ResultSet consultarTodo(){
-        String consulta="select * from RESERVE ORDER BY RESID ";
+        String consulta="select * from RESERVA ORDER BY RESID ";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
     }

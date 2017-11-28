@@ -19,6 +19,15 @@ public class Modelo_Reserva {
     private Date resFechaFin;
     private float restotal;
 
+    public Modelo_Reserva(){
+        this.resId = 0;
+        this.cliDni = 0;
+        this.hotId = 0;
+        this.resPersonas = 0;
+        this.resFechaInicio = null;
+        this.restotal = 0;
+    }
+    
     public Modelo_Reserva(int resId, int cliDni, int hotId, int resPersonas, Date resFechaInicio) {
         this.resId = resId;
         this.cliDni = cliDni;
