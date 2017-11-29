@@ -57,6 +57,9 @@ alter table TELEFONOEMPLEADO
 
 alter table TELEFONOHOTEL
    drop constraint FK_TELEFONO_TIENE_HOTEL;
+   
+alter table USUARIOS
+	drop constraint PK_USUARIOS;
 
 drop table CATEGORIA cascade constraints;
 
@@ -125,6 +128,8 @@ drop index TIENE_FK;
 drop table TELEFONOHOTEL cascade constraints;
 
 drop table TIPO_HABITACION cascade constraints;
+
+drop table USUARIOS cascade constraints;
 
 /*==============================================================*/
 /* Table: CATEGORIA                                             */
@@ -436,6 +441,15 @@ create table TIPO_HABITACION
    TIPTIPO              CHAR(30)             not null,
    TIPPRECIO            FLOAT,
    constraint PK_TIPO_HABITACION primary key (TIPID)
+);
+
+create table USUARIOS
+(
+   USUARIOSID		INTEGER  not null,
+   GRUPO            CHAR(30) not null,
+   USUARIO          CHAR(30) not null,
+   CLAVE            CHAR(30) not null,
+   constraint PK_USUARIOS primary key (USUARIOSID)
 );
 
 alter table CIUDAD
