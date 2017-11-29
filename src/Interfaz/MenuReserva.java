@@ -67,6 +67,10 @@ public final class MenuReserva extends javax.swing.JDialog {
         cargarCombo(cmbHabitaciones);
     }
 
+    MenuReserva() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public int buscarCliente() {
         ArrayList<String> array = new ArrayList<>();
         if (txtDni.getText().length() > 0) {

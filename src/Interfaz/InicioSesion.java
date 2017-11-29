@@ -5,6 +5,12 @@
  */
 package Interfaz;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ALBERT
@@ -14,8 +20,48 @@ public class InicioSesion extends javax.swing.JFrame {
     /**
      * Creates new form InicioSesion
      */
+    private Connection conect;
+    
     public InicioSesion() {
         initComponents();
+        setLocationRelativeTo(null);
+    }
+    
+    void Limpiar(){
+       txtUsuario.setText("");
+       txtContrasenia.setText("");
+    }
+    
+    private void close(){
+        dispose();
+    }
+    
+     public void ingresar(){
+        String cap="";
+        String usuario=txtUsuario.getText();
+        String clave=String.valueOf(txtContrasenia.getPassword());
+        String sql="SELECT * FROM USUARIOS WHERE LOGIN='"+usuario+"' && CLAVE='"+clave+"' "; 
+       
+        try{
+            Statement st=conect.createStatement();
+            ResultSet rs=st.executeQuery(sql);
+            while(rs.next()){
+                cap=rs.getString("GRUPO");
+            }
+            if(cap.equals("empleado")){
+                JOptionPane.showMessageDialog(null,"Bienvenido Empleado");
+                MenuPrincipal menuP = new MenuPrincipal();
+                menuP.setVisible(true);
+                close();
+            }
+            if(cap.equals("cliente")){
+                JOptionPane.showMessageDialog(null,"Bienvenido Cliente");
+                MenuReserva menuR=new MenuReserva();
+                menuR.setVisible(true);
+                close();
+            }
+        }catch(SQLException ex){
+        }
     }
 
     /**
@@ -96,6 +142,11 @@ public class InicioSesion extends javax.swing.JFrame {
         });
 
         txtContrasenia.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtContrasenia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtContraseniaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -192,7 +243,12 @@ public class InicioSesion extends javax.swing.JFrame {
 
     private void bottonIniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bottonIniciarSesionActionPerformed
         // TODO add your handling code here:
+        ingresar();
     }//GEN-LAST:event_bottonIniciarSesionActionPerformed
+
+    private void txtContraseniaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtContraseniaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtContraseniaActionPerformed
 
     /**
      * @param args the command line arguments
