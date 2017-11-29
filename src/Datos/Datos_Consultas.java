@@ -23,6 +23,20 @@ public class Datos_Consultas extends Datos {
         return result;
     }
 
+    public ResultSet joinReservaComprende(int resid) {
+        String consulta = "select count(*) as \"Número de habitaciones\" from comprende inner join reserva on comprende.resid = reserva.resid where reserva.resid = %s";
+        consulta = String.format(consulta,resid);
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
+    
+    public ResultSet joinReservaComprendeHabId(int resid) {
+        String consulta = "select habid from comprende inner join reserva on comprende.resid = reserva.resid where reserva.resid = %s";
+        consulta = String.format(consulta,resid);
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
+    
     @Override
     public ResultSet consultarTodo() {
         String consulta = "select * from Hotel";

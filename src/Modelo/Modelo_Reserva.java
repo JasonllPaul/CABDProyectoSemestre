@@ -18,6 +18,7 @@ public class Modelo_Reserva {
     private Date resFechaInicio;
     private Date resFechaFin;
     private float restotal;
+    private String resestado;
 
     public Modelo_Reserva(){
         this.resId = 0;
@@ -92,8 +93,12 @@ public class Modelo_Reserva {
         this.restotal = restotal;
     }
 
-    
-    
-    
+    public String getResestado() {
+        return resestado;
+    }
+
+    public void setResestado(String resestado) {
+        this.resestado = resestado;
+    }
     
 }

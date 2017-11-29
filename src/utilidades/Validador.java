@@ -23,5 +23,12 @@ public class Validador {
             txt.setText(txt.getText().substring(0, 10));
         }
     }
+    
+    public boolean validarNumeros(javax.swing.JTextField txt,javax.swing.JLabel lbl){
+        
+        
+        
+        return false;
+    }
 
 }

@@ -8,22 +8,20 @@ import Datos.Datos_Habitacion;
 import Datos.Datos_Reserva;
 import Interfaz.Submenu.CalculoReserva;
 import Modelo.Modelo_Cliente;
-import Modelo.Modelo_Comprende;
 import Modelo.Modelo_Habitacion;
 import Modelo.Modelo_Reserva;
+import com.toedter.calendar.JDateChooser;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import utilidades.Validador;
 
 /**
@@ -42,7 +40,6 @@ public final class CheckOut extends javax.swing.JDialog {
     Datos_Consultas consultasControlador;
     Conexion conexion;
     Validador validador;
-    boolean calculado;
     boolean encontrado;
 
     /**
@@ -57,7 +54,6 @@ public final class CheckOut extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         this.validador = new Validador();
-        this.calculado = false;
         this.encontrado = false;
         this.hotel = hotel;
         this.conexion = conexion;
@@ -66,6 +62,57 @@ public final class CheckOut extends javax.swing.JDialog {
         reservaControlador = new Datos_Reserva(conexion);
         comprendeControlador = new Datos_Comprende(conexion);
         reserva = new Modelo_Reserva();
+    }
+
+    public void ejecutarCheckOut(int pos) throws SQLException {
+        if (JOptionPane.showConfirmDialog(this, "¿Está seguro del Check-Out?") == 0) {
+            try {
+                cargarReserva(pos);
+            } catch (SQLException ex) {
+                Logger.getLogger(CheckOut.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            int nHabitaciones = 0;
+            ResultSet res = consultasControlador.joinReservaComprende(reserva.getResId());
+            while (res.next()) {
+                nHabitaciones = Integer.parseInt(res.getObject("Número de habitaciones").toString());
+            }
+
+            CalculoReserva cr = new CalculoReserva(null, true, reserva, nHabitaciones);
+            cr.setVisible(encontrado);
+            reserva.setResestado("Finalizado");
+            if (reservaControlador.checkout(reserva) == 1) {
+
+                res = consultasControlador.joinReservaComprendeHabId(reserva.getResId());
+                while (res.next()) {
+                    
+                    Modelo_Habitacion habitacion = new Modelo_Habitacion();
+                    habitacion.setHabid(Integer.parseInt(res.getObject("HABID").toString()));
+                    habitacion.setHab("Libre");
+                    if (habitacionControlador.actualizarEstadoHabitacion(habitacion) == 1) {
+
+                        JOptionPane.showMessageDialog(this, "Check-Out exitoso");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Error del sistema para Check-Out");
+                    }
+                }
+
+                llenarTablaReserva();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error del sistema para Check-Out");
+            }
+        }
+    }
+
+    public boolean prepararCheckout() {
+        int pos = tblReserva.getSelectedRow();
+        if (tblReserva.getValueAt(pos, 3) != null) {
+            String fechaFin = tblReserva.getValueAt(pos, 3).toString();
+            System.out.println("fechaFin: " + fechaFin);
+            return fechaFin.length() > 0;
+        } else {
+            return false;
+        }
     }
 
     public int buscarCliente() {
@@ -83,34 +130,13 @@ public final class CheckOut extends javax.swing.JDialog {
             try {
                 while (resTodos.next()) {
                     array.add(resTodos.getObject("CLIDNI").toString());
+                    lblListaReservas.setText("Lista de reservas " + resTodos.getObject("CLINOMBRE").toString().trim() + resTodos.getObject("CLIAPELLIDO").toString().trim());
                 }
             } catch (SQLException ex) {
                 System.out.println(ex.getMessage());
             }
         }
         return array.size();
-    }
-
-    public void cargarCombo(JComboBox<String> cmb) {
-        cmb.removeAllItems();
-        ArrayList habitaciones = getValoresTabla("HABID");
-
-        for (int i = 0; i < habitaciones.size(); i++) {
-            cmb.addItem(habitaciones.get(i).toString());
-        }
-    }
-
-    public ArrayList getValoresTabla(String nombreColumna) {
-        ResultSet resTodos = habitacionControlador.consultarHabitacion("Libre", hotel.getHotId());
-        ArrayList<String> array = new ArrayList<>();
-        try {
-            while (resTodos.next()) {
-                array.add(resTodos.getObject(nombreColumna).toString());
-            }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return array;
     }
 
     /**
@@ -131,14 +157,12 @@ public final class CheckOut extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         btnGuardar = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
-        txtCalculo = new javax.swing.JTextField();
         jSeparator2 = new javax.swing.JSeparator();
-        lblCalculo = new javax.swing.JLabel();
         btnCalcular = new javax.swing.JButton();
         lblEstadoDni = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblReserva = new javax.swing.JTable();
-        btnCancelar1 = new javax.swing.JButton();
+        lblListaReservas = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -187,7 +211,7 @@ public final class CheckOut extends javax.swing.JDialog {
         btnGuardar.setBackground(new java.awt.Color(0, 102, 204));
         btnGuardar.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         btnGuardar.setForeground(new java.awt.Color(255, 255, 255));
-        btnGuardar.setText("+ Crear");
+        btnGuardar.setText("Check-Out");
         btnGuardar.setFocusable(false);
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -198,22 +222,13 @@ public final class CheckOut extends javax.swing.JDialog {
         btnCancelar.setBackground(new java.awt.Color(255, 102, 102));
         btnCancelar.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
-        btnCancelar.setText("Cancelar");
+        btnCancelar.setText("Cerrar");
         btnCancelar.setFocusable(false);
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelarActionPerformed(evt);
             }
         });
-
-        txtCalculo.setEditable(false);
-        txtCalculo.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtCalculo.setText("$ 0.00");
-        txtCalculo.setFocusable(false);
-        txtCalculo.setRequestFocusEnabled(false);
-
-        lblCalculo.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        lblCalculo.setText("TOTAL:");
 
         btnCalcular.setBackground(new java.awt.Color(0, 153, 153));
         btnCalcular.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
@@ -232,23 +247,17 @@ public final class CheckOut extends javax.swing.JDialog {
 
         tblReserva.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null}
+
             },
             new String [] {
-                "Número de Reserva", "Hotel", "Fecha Inicio", "Fecha Fin", "Total"
+                "Número de Reserva", "Hotel", "Fecha de Inicio", "Fecha Fin", "Total"
             }
         ));
         jScrollPane1.setViewportView(tblReserva);
 
-        btnCancelar1.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
-        btnCancelar1.setForeground(new java.awt.Color(255, 255, 255));
-        btnCancelar1.setText("Listo");
-        btnCancelar1.setFocusable(false);
-        btnCancelar1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancelar1ActionPerformed(evt);
-            }
-        });
+        lblListaReservas.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        lblListaReservas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblListaReservas.setText("Lista de reservas");
 
         javax.swing.GroupLayout panelEscritorioLayout = new javax.swing.GroupLayout(panelEscritorio);
         panelEscritorio.setLayout(panelEscritorioLayout);
@@ -260,37 +269,30 @@ public final class CheckOut extends javax.swing.JDialog {
                         .addComponent(panelTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE))
                     .addGroup(panelEscritorioLayout.createSequentialGroup()
-                        .addGap(88, 88, 88)
-                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                .addGap(20, 20, 20)
-                                .addComponent(lblDni, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(lblEstadoDni, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtDni, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
-                            .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                        .addGap(41, 41, 41)
-                                        .addComponent(lblCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(btnCancelar1))
-                                .addGap(462, 462, 462)
-                                .addComponent(btnCalcular))
-                            .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                .addGap(152, 152, 152)
-                                .addComponent(btnCancelar)
-                                .addGap(42, 42, 42)
-                                .addComponent(btnGuardar))))
-                    .addGroup(panelEscritorioLayout.createSequentialGroup()
-                        .addGap(51, 51, 51)
-                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(108, 108, 108)
+                        .addComponent(lblDni, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lblEstadoDni, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtDni, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
                     .addGroup(panelEscritorioLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+                            .addGroup(panelEscritorioLayout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panelEscritorioLayout.createSequentialGroup()
+                                .addGap(247, 247, 247)
+                                .addComponent(btnCancelar)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnGuardar))
+                            .addComponent(lblListaReservas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(340, 340, 340)
+                        .addComponent(btnCalcular))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 421, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelEscritorioLayout.setVerticalGroup(
@@ -308,25 +310,25 @@ public final class CheckOut extends javax.swing.JDialog {
                     .addGroup(panelEscritorioLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(4, 4, 4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblEstadoDni, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(48, 48, 48)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnCancelar1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
-                .addComponent(lblCalculo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnCalcular))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCancelar)
-                    .addComponent(btnGuardar))
-                .addGap(70, 70, 70))
+                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnCalcular)
+                        .addGap(120, 120, 120))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(4, 4, 4)
+                        .addComponent(lblListaReservas, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnGuardar)
+                            .addComponent(btnCancelar))
+                        .addContainerGap(22, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -339,7 +341,7 @@ public final class CheckOut extends javax.swing.JDialog {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelEscritorio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelEscritorio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -351,22 +353,31 @@ public final class CheckOut extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (calculado) {
+        int pos = tblReserva.getSelectedRow();
+        if (pos != -1 && encontrado) {
             try {
-                inicialiarReserva();
-
-                if (reservaControlador.insertarReservas(reserva) == 1) {
-
+                int resid = Integer.parseInt(tblReserva.getValueAt(pos, 0).toString());
+                reserva.setResId(resid);
+                if (prepararCheckout()) {
+                    ejecutarCheckOut(pos);
                 } else {
-                    JOptionPane.showMessageDialog(this, "Reserva no registrada, Cliente " + txtDni.getText() + " no ha sido registrado");
+                    reserva.setResFechaFin(new Date());
+                    if (reservaControlador.insertFechaFin(reserva) == 1) {
+                        llenarTablaReserva();
+                        ejecutarCheckOut(pos);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Problema con la fecha fin");
+                    }
+
                 }
+
             } catch (java.lang.NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
             } catch (SQLException ex) {
                 Logger.getLogger(CheckOut.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Por favor calcule el total");
+            JOptionPane.showMessageDialog(this, "Por favor seleccione una reserva");
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
@@ -379,19 +390,29 @@ public final class CheckOut extends javax.swing.JDialog {
     private void txtDniKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDniKeyReleased
 
         validador.validarTamanio(txtDni);
+        validador.validarNumeros(txtDni, lblEstadoDni);
 
         if (buscarCliente() == 1) {
             lblEstadoDni.setForeground(new Color(0, 153, 51));
             lblEstadoDni.setText("Cliente registrado");
+            llenarTablaReserva();
             encontrado = true;
         } else {
             lblEstadoDni.setForeground(Color.red);
             lblEstadoDni.setText("DNI no encontrado");
+            lblListaReservas.setText("");
+            tblReserva.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object[][]{},
+                    new String[]{
+                        "Número de Reserva", "Hotel", "Fecha de Inicio", "Fecha Fin", "Total"
+                    }
+            ));
             encontrado = false;
         }
 
         if (!validador.validarVacio(txtDni)) {
             lblEstadoDni.setText("");
+            lblListaReservas.setText("");
             encontrado = false;
         }
 
@@ -407,9 +428,30 @@ public final class CheckOut extends javax.swing.JDialog {
 
     }//GEN-LAST:event_txtDniKeyPressed
 
-    private void btnCancelar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelar1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnCancelar1ActionPerformed
+    public void cargarReserva(int pos) throws SQLException {
+
+        if (pos != -1) {
+            int resid = Integer.parseInt(tblReserva.getValueAt(pos, 0).toString());
+            reserva.setResId(resid);
+            ResultSet res = reservaControlador.buscarRegistroReservas(reserva);
+            while (res.next()) {
+                reserva.setResId(Integer.parseInt(res.getObject("RESID").toString()));
+                reserva.setHotId(Integer.parseInt(res.getObject("HOTID").toString()));
+                reserva.setCliDni(Integer.parseInt(res.getObject("CLIDNI").toString()));
+                reserva.setResPersonas(Integer.parseInt(res.getObject("RESPERSONAS").toString()));
+                reserva.setResestado(res.getObject("RESESTADO").toString());
+
+                String fechaInicio = new SimpleDateFormat("MM/dd/yy").format(new Date(res.getObject("RESFECHAINICIO").toString().substring(0, 10).replace("-", "/")));
+                String fechaFin = new SimpleDateFormat("MM/dd/yy").format(new Date(res.getObject("RESFECHAFIN").toString().substring(0, 10).replace("-", "/")));
+
+                reserva.setResFechaFin(new Date(fechaFin));
+                reserva.setResFechaInicio(new Date(fechaInicio));
+                reserva.setRestotal(Float.parseFloat(res.getObject("RESTOTAL").toString()));
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione una reserva");
+        }
+    }
 
     public void llenarTablaReserva() {
         ResultSet resTodos = consultasControlador.joinReservaHotel(Integer.parseInt(txtDni.getText()));
@@ -418,18 +460,6 @@ public final class CheckOut extends javax.swing.JDialog {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-
-    public void inicialiarReserva() throws SQLException {
-        ResultSet res = reservaControlador.selectSequence(); // Obtiene el valor del autoincremental para la llave primaria
-        ArrayList<String> array = new ArrayList<>();
-        while (res.next()) {
-            reserva.setResId(Integer.parseInt(res.getObject("NEXTVAL").toString()));
-        }
-        reserva.setCliDni(Integer.parseInt(txtDni.getText()));
-        reserva.setHotId(hotel.getHotId());
-        reserva.setRestotal(Float.parseFloat(txtCalculo.getText().replace("$", "")));
-        reservaControlador = new Datos_Reserva(this.conexion);
     }
 
     public boolean validar() {
@@ -487,20 +517,18 @@ public final class CheckOut extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCalcular;
     private javax.swing.JButton btnCancelar;
-    private javax.swing.JButton btnCancelar1;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JLabel lblCalculo;
     private javax.swing.JLabel lblDni;
     private javax.swing.JLabel lblEstadoDni;
+    private javax.swing.JLabel lblListaReservas;
     private javax.swing.JLabel lblTitulo;
     private javax.swing.JPanel panelEscritorio;
     private javax.swing.JPanel panelTitulo;
     private javax.swing.JTable tblReserva;
-    private javax.swing.JTextField txtCalculo;
     private javax.swing.JTextField txtDni;
     // End of variables declaration//GEN-END:variables
 }

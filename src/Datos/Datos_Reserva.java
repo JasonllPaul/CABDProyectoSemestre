@@ -88,6 +88,24 @@ public class Datos_Reserva extends Datos{
         return result;
     }
     
+    public int checkout(Modelo_Reserva res){
+        String consulta;
+        consulta = "UPDATE RESERVA SET RESESTADO = '%s' WHERE RESID = %s";
+        consulta = String.format(consulta,res.getResestado(),res.getResId());
+        int result = dt.ejecutarDML(consulta);
+        return result;
+    }
+    
+    public int insertFechaFin(Modelo_Reserva res){
+        String consulta;
+        consulta = "UPDATE RESERVA SET RESFECHAFIN = TO_DATE('%s', 'YYYY-MM-DD HH24:MI:SS') WHERE RESID = %s";
+        String fechaFin = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(res.getResFechaFin());
+        consulta = String.format(consulta,fechaFin,res.getResId());
+        System.out.println("sql: "+consulta);
+        int result = dt.ejecutarDML(consulta);
+        return result;
+    }
+    
     public ResultSet buscarRegistroReservas(Modelo_Reserva res){
         String consulta="select * from RESERVA where RESID = %s";
         consulta = String.format(consulta,res.getResId());

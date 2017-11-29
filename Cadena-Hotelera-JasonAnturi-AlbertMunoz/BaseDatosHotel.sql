@@ -288,8 +288,7 @@ create table HABITACION
    HABNUMEROTV          INTEGER              default 1
       constraint CKC_HABNUMEROTV_HABITACI check (HABNUMEROTV is null or (HABNUMEROTV between 0 and 10)),
    HABUBICACION         CHAR(100),
-   HABAIREACONDICIONADO CHAR(2)              default 'si'
-      constraint CKC_HABAIREACONDICION_HABITACI check (HABAIREACONDICIONADO is null or (HABAIREACONDICIONADO between 'no' and 'si' and HABAIREACONDICIONADO = upper(HABAIREACONDICIONADO))),
+   HABAIREACONDICIONADO CHAR(2)              default 'si',
    constraint PK_HABITACION primary key (HABID)
 );
 
@@ -354,6 +353,7 @@ create table RESERVA
    RESFECHAINICIO       DATE                 not null,
    RESFECHAFIN          DATE,
    RESTOTAL             FLOAT,
+   RESESTADO VARCHAR2(15) DEFAULT 'Pendiente',
    constraint PK_RESERVA primary key (RESID)
 );
 
@@ -524,3 +524,4 @@ alter table TELEFONOHOTEL
    add constraint FK_TELEFONO_TIENE_HOTEL foreign key (HOTID)
       references HOTEL (HOTID);
 
+CREATE SEQUENCE  "CABD"."SEQ_RESERVA"  MINVALUE 1 MAXVALUE 1000000 INCREMENT BY 1 START WITH 135 NOCACHE  NOORDER  NOCYCLE ;

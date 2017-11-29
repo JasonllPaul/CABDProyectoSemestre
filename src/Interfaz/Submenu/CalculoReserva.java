@@ -5,6 +5,7 @@
  */
 package Interfaz.Submenu;
 
+import Modelo.Modelo_Reserva;
 import com.sun.glass.events.KeyEvent;
 
 /**
@@ -13,8 +14,11 @@ import com.sun.glass.events.KeyEvent;
  */
 public final class CalculoReserva extends javax.swing.JDialog {
 
-    private final double PERSONA = 32000, HABITACION = 15000;
+    private final double PERSONA = 32000, HABITACION = 15000, DIAS = 12500;
     private double calculo;
+    private int dias;
+    private Modelo_Reserva reserva;
+
     /**
      * Creates new form CalculoReserva
      *
@@ -26,8 +30,10 @@ public final class CalculoReserva extends javax.swing.JDialog {
     public CalculoReserva(java.awt.Frame parent, boolean modal, Modelo.Modelo_Reserva reserva, int habitaciones) {
         super(parent, modal);
         initComponents();
+        dias = 0;
+        this.reserva = reserva;
         if (reserva.getResFechaFin() != null) {
-            int dias = (int) ((reserva.getResFechaFin().getTime() - reserva.getResFechaInicio().getTime()) / 86400000);
+            dias = (int) ((reserva.getResFechaFin().getTime() - reserva.getResFechaInicio().getTime()) / 86400000);
             System.out.println("Hay " + dias + " dias de diferencia");
         }
         calcular(reserva.getResPersonas(), habitaciones);
@@ -36,17 +42,24 @@ public final class CalculoReserva extends javax.swing.JDialog {
     public void calcular(int nPersonas, int nHabitaciones) {
         double valor1 = (PERSONA * nPersonas);
         double valor2 = (HABITACION * nHabitaciones);
+        double valor3 = (DIAS * dias);
 
         lblPersonas.setText("Total por personas (" + nPersonas + ") :");
         lblTotal1.setText("$ " + valor1);
         lblHabitaciones.setText("Total por habitaciones (" + nHabitaciones + ") :");
         lblTotal2.setText("$ " + valor2);
-        
-        this.calculo = (valor1 + valor2);
+        if (reserva.getResFechaFin() != null) {
+            lblDias.setText("Total días (" + dias + ") :");
+            lblTotal3.setText("$ " + valor3);
+        } else {
+            lblTotal3.setText("Abierto");
+        }
+
+        this.calculo = (valor1 + valor2 + valor3);
         lblTotal.setText("TOTAL : " + calculo);
     }
-    
-    public double getCalculo(){
+
+    public double getCalculo() {
         return calculo;
     }
 
@@ -68,6 +81,8 @@ public final class CalculoReserva extends javax.swing.JDialog {
         lblTotal1 = new javax.swing.JLabel();
         lblTotal2 = new javax.swing.JLabel();
         lblHabitaciones = new javax.swing.JLabel();
+        lblDias = new javax.swing.JLabel();
+        lblTotal3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setUndecorated(true);
@@ -96,7 +111,12 @@ public final class CalculoReserva extends javax.swing.JDialog {
         lblTotal2.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         lblHabitaciones.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        lblHabitaciones.setText("TotalHabitaciones");
+        lblHabitaciones.setText("Total Habitaciones");
+
+        lblDias.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        lblDias.setText("Total días:");
+
+        lblTotal3.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
 
         javax.swing.GroupLayout escritorioLayout = new javax.swing.GroupLayout(escritorio);
         escritorio.setLayout(escritorioLayout);
@@ -119,11 +139,13 @@ public final class CalculoReserva extends javax.swing.JDialog {
                                     .addGroup(escritorioLayout.createSequentialGroup()
                                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(lblPersonas, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                                            .addComponent(lblHabitaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .addComponent(lblHabitaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(lblDias, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(lblTotal2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblTotal1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                            .addComponent(lblTotal1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(lblTotal3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                         .addGap(0, 9, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(escritorioLayout.createSequentialGroup()
@@ -139,14 +161,18 @@ public final class CalculoReserva extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(8, 8, 8)
-                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTotal1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTotal1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblTotal2, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblHabitaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(escritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblDias, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTotal3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -169,7 +195,7 @@ public final class CalculoReserva extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
-         if ((evt.getKeyCode() == KeyEvent.VK_ESCAPE) || (evt.getKeyCode() == KeyEvent.VK_ENTER)) {
+        if ((evt.getKeyCode() == KeyEvent.VK_ESCAPE) || (evt.getKeyCode() == KeyEvent.VK_ENTER)) {
             this.dispose();
         }
     }//GEN-LAST:event_formKeyPressed
@@ -220,11 +246,13 @@ public final class CalculoReserva extends javax.swing.JDialog {
     private javax.swing.JPanel escritorio;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lblDias;
     private javax.swing.JLabel lblHabitaciones;
     private javax.swing.JLabel lblPersonas;
     private javax.swing.JLabel lblTitulo;
     private javax.swing.JLabel lblTotal;
     private javax.swing.JLabel lblTotal1;
     private javax.swing.JLabel lblTotal2;
+    private javax.swing.JLabel lblTotal3;
     // End of variables declaration//GEN-END:variables
 }

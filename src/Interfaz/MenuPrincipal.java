@@ -294,7 +294,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     private void btnReservaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservaActionPerformed
         try {
             reservarHotel();
-
             MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado, this.conexion);
             mr.setVisible(true);
         } catch (NullPointerException e) {
