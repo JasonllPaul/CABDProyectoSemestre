@@ -6,6 +6,7 @@
 package Interfaz;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,46 +22,49 @@ public class InicioSesion extends javax.swing.JFrame {
      * Creates new form InicioSesion
      */
     private Connection conect;
-    
+
     public InicioSesion() {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
-    void Limpiar(){
-       txtUsuario.setText("");
-       txtContrasenia.setText("");
+
+    void Limpiar() {
+        txtUsuario.setText("");
+        txtContrasenia.setText("");
     }
-    
-    private void close(){
+
+    private void close() {
         dispose();
     }
-    
-     public void ingresar(){
-        String cap="";
-        String usuario=txtUsuario.getText();
-        String clave=String.valueOf(txtContrasenia.getPassword());
-        String sql="SELECT * FROM USUARIOS WHERE LOGIN='"+usuario+"' && CLAVE='"+clave+"' "; 
-       
-        try{
-            Statement st=conect.createStatement();
-            ResultSet rs=st.executeQuery(sql);
-            while(rs.next()){
-                cap=rs.getString("GRUPO");
+
+    public void ingresar() {
+        String cap = "";
+        String usuario = txtUsuario.getText();
+        String clave = String.valueOf(txtContrasenia.getPassword());
+        String sql = "SELECT * FROM USUARIOS WHERE USUARIO = '"+usuario+"' and CLAVE = '"+clave+"'";
+        //String sql = "SELECT * FROM USUARIOS";
+        try {
+            String cadenaConexion = "jdbc:oracle:thin:@localhost:1521:xe";
+            conect = DriverManager.getConnection(cadenaConexion, "CABD", "oracle");
+            Statement st = conect.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while (rs.next()) {
+                cap = rs.getString("GRUPO").trim();
             }
-            if(cap.equals("empleado")){
-                JOptionPane.showMessageDialog(null,"Bienvenido Empleado");
+            if (cap.equalsIgnoreCase("empleado")) {
+                JOptionPane.showMessageDialog(null, "Bienvenido Empleado");
                 MenuPrincipal menuP = new MenuPrincipal();
                 menuP.setVisible(true);
                 close();
             }
-            if(cap.equals("cliente")){
-                JOptionPane.showMessageDialog(null,"Bienvenido Cliente");
-                MenuReserva menuR=new MenuReserva();
+            if (cap.equals("cliente")) {
+                JOptionPane.showMessageDialog(null, "Bienvenido Cliente");
+                MenuReserva menuR = new MenuReserva();
                 menuR.setVisible(true);
                 close();
             }
-        }catch(SQLException ex){
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
