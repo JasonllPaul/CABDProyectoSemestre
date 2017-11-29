@@ -11,12 +11,12 @@ import java.sql.ResultSet;
  *
  * @author JasonllPaul
  */
-public class Datos_Ciudad extends Datos{
+public class Datos_Ciudad extends Datos {
 
-    public Datos_Ciudad(Conexion conexion){
+    public Datos_Ciudad(Conexion conexion) {
         this.dt = conexion;
     }
-    
+
     @Override
     public ResultSet consultarTodo() {
         String consulta = "select * from CIUDAD ORDER BY CIUNOMBRE ";
@@ -26,8 +26,16 @@ public class Datos_Ciudad extends Datos{
 
     public ResultSet consultarCiudadesDepartamento(int depid) {
         String consulta = "select * from ciudad\n"
-                + "where DEPID = "+depid+"\n"
+                + "where DEPID = " + depid + "\n"
                 + "order by ciuNombre";
+        ResultSet result = dt.ejecutarSELECT(consulta);
+        return result;
+    }
+
+    public ResultSet consultarCiuId(String nombre) {
+        String consulta = "select ciuid\n"
+                + "from ciudad\n"
+                + "where CIUNOMBRE = '"+nombre+"'";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
     }

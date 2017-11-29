@@ -12,6 +12,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,7 +45,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         this.reservaControlador = new Datos_Reserva(conexion);
         this.habitacionControlador = new Datos_Habitacion(conexion);
         llenarTablaTodosHoteles();
-        llenarTablaTodasReservas();
     }
 
     /**
@@ -56,15 +57,14 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     private void initComponents() {
 
         escritorio = new javax.swing.JLayeredPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblInformacion = new javax.swing.JTable();
-        lblBaseDatos = new javax.swing.JLabel();
         lblBaseDatosConexion = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        lblTitulo = new javax.swing.JLabel();
+        panelHoteles = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblInformacion = new javax.swing.JTable();
         btnReserva = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblReserva = new javax.swing.JTable();
+        lblTituloHoteles = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -79,12 +79,43 @@ public final class MenuPrincipal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
+        escritorio.setBackground(new java.awt.Color(255, 255, 255));
+        escritorio.add(lblBaseDatosConexion);
+        lblBaseDatosConexion.setBounds(40, 324, 210, 30);
+
+        jPanel1.setBackground(new java.awt.Color(102, 51, 0));
+        jPanel1.setForeground(new java.awt.Color(102, 51, 0));
+
+        lblTitulo.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        lblTitulo.setForeground(new java.awt.Color(255, 255, 255));
+        lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitulo.setText("CADENA HOTELERA");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(lblTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, 980, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+
+        escritorio.add(jPanel1);
+        jPanel1.setBounds(0, 0, 980, 100);
+
+        panelHoteles.setBackground(new java.awt.Color(255, 255, 255));
+
         tblInformacion.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null}
+
             },
             new String [] {
-                "Title 1"
+                "Hotel"
             }
         ));
         tblInformacion.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -94,67 +125,50 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblInformacion);
 
-        escritorio.add(jScrollPane1);
-        jScrollPane1.setBounds(30, 140, 740, 130);
-
-        lblBaseDatos.setText("CONECTADO A:");
-        escritorio.add(lblBaseDatos);
-        lblBaseDatos.setBounds(40, 290, 170, 40);
-        escritorio.add(lblBaseDatosConexion);
-        lblBaseDatosConexion.setBounds(40, 324, 210, 30);
-
-        jPanel1.setBackground(new java.awt.Color(102, 51, 0));
-        jPanel1.setForeground(new java.awt.Color(102, 51, 0));
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("CADENA HOTELERA");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(268, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(242, 242, 242))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(30, Short.MAX_VALUE))
-        );
-
-        escritorio.add(jPanel1);
-        jPanel1.setBounds(0, 0, 790, 100);
-
-        btnReserva.setText("Crear Reserva");
+        btnReserva.setBackground(new java.awt.Color(0, 102, 204));
+        btnReserva.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
+        btnReserva.setForeground(new java.awt.Color(255, 255, 255));
+        btnReserva.setText("+ Crear");
         btnReserva.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnReservaActionPerformed(evt);
             }
         });
-        escritorio.add(btnReserva);
-        btnReserva.setBounds(620, 280, 90, 30);
 
-        tblReserva.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane2.setViewportView(tblReserva);
+        lblTituloHoteles.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        lblTituloHoteles.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTituloHoteles.setText("Lista de Hoteles");
 
-        escritorio.add(jScrollPane2);
-        jScrollPane2.setBounds(90, 370, 452, 150);
+        javax.swing.GroupLayout panelHotelesLayout = new javax.swing.GroupLayout(panelHoteles);
+        panelHoteles.setLayout(panelHotelesLayout);
+        panelHotelesLayout.setHorizontalGroup(
+            panelHotelesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelHotelesLayout.createSequentialGroup()
+                .addGroup(panelHotelesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelHotelesLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 870, Short.MAX_VALUE))
+                    .addGroup(panelHotelesLayout.createSequentialGroup()
+                        .addGap(328, 328, 328)
+                        .addComponent(btnReserva, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .addComponent(lblTituloHoteles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        panelHotelesLayout.setVerticalGroup(
+            panelHotelesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelHotelesLayout.createSequentialGroup()
+                .addGap(32, 32, 32)
+                .addComponent(lblTituloHoteles)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnReserva, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        escritorio.add(panelHoteles);
+        panelHoteles.setBounds(40, 170, 890, 290);
 
         jMenu1.setText("Conexión");
 
@@ -225,7 +239,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE)
+            .addComponent(escritorio, javax.swing.GroupLayout.DEFAULT_SIZE, 972, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -282,7 +296,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     private void tblInformacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInformacionMouseClicked
         try {
             if ((evt.getButton() == 3) && (tblInformacion.getSelectedRow() != -1)) { // 3 es click derecho
-                reservarHotel();
+                prepararHotel();
                 SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(), this.hotelSeleccionado, conexion);
                 sm.setVisible(true);
             }
@@ -293,11 +307,12 @@ public final class MenuPrincipal extends javax.swing.JFrame {
 
     private void btnReservaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReservaActionPerformed
         try {
-            reservarHotel();
+            prepararHotel();
+            System.out.println("h: "+hotelSeleccionado);
             MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado, this.conexion);
             mr.setVisible(true);
         } catch (NullPointerException e) {
-            System.out.println("No ha seleccionado una fila de hotel");
+            System.out.println(e.getMessage());
         }
     }//GEN-LAST:event_btnReservaActionPerformed
 
@@ -314,7 +329,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
 
     public void crearReserva() {
         try {
-            reservarHotel();
+            prepararHotel();
 
             MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado, this.conexion);
             mr.setVisible(true);
@@ -329,21 +344,27 @@ public final class MenuPrincipal extends javax.swing.JFrame {
 
     }
 
-    public void reservarHotel() {
+    public void prepararHotel() {
         try {
             int pos = tblInformacion.getSelectedRow(); // posición de la fila seleccionada
-            int numColumnas = tblInformacion.getColumnCount(); // número de columnas del modelo
-
+            
             int hotId = Integer.parseInt(tblInformacion.getValueAt(pos, 0).toString());
-            int ciuId = Integer.parseInt(tblInformacion.getValueAt(pos, 1).toString());
-            int empdni = Integer.parseInt(tblInformacion.getValueAt(pos, 2).toString());
-            int catId = Integer.parseInt(tblInformacion.getValueAt(pos, 3).toString());
-            String hotNombre = tblInformacion.getValueAt(pos, 4).toString();
-            String hotDireccion = tblInformacion.getValueAt(pos, 5).toString();
+            hotelSeleccionado = new Modelo_Hotel(hotId);
+            hotelSeleccionado.setHotId(hotId);
+            ResultSet resHoteles = hotelControlador.buscarRegistroHoteles(hotelSeleccionado);
+            while (resHoteles.next()) {
+                int ciuId = Integer.parseInt(resHoteles.getString("CIUID"));
+                int empdni = Integer.parseInt(resHoteles.getString("EMPDNI"));
+                int catId = Integer.parseInt(resHoteles.getString("CATID"));
+                String hotNombre = resHoteles.getString("HOTNOMBRE");
+                String hotDireccion = resHoteles.getString("HOTDIRECCION");
 
-            hotelSeleccionado = new Modelo_Hotel(hotId, ciuId, empdni, catId, hotNombre, hotDireccion);
+                hotelSeleccionado = new Modelo_Hotel(hotId, ciuId, empdni, catId, hotNombre, hotDireccion);
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("No ha seleccionado una fila de hotel");
+            System.out.println("e: " +e.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Error SQL");
         }
     }
 
@@ -374,15 +395,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         }
     }
 
-    public void llenarTablaTodasReservas() {
-        ResultSet resTodos = reservaControlador.consultarTodo();
-        try {
-            tblReserva.setModel(ConstruirModeloDeDatos(resTodos));
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
     /**
      * @param args the command line arguments
      */
@@ -394,7 +406,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnReserva;
     private javax.swing.JLayeredPane escritorio;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
@@ -408,10 +419,10 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JLabel lblBaseDatos;
     private javax.swing.JLabel lblBaseDatosConexion;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JLabel lblTituloHoteles;
+    private javax.swing.JPanel panelHoteles;
     private javax.swing.JTable tblInformacion;
-    private javax.swing.JTable tblReserva;
     // End of variables declaration//GEN-END:variables
 }

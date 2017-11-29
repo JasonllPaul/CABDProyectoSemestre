@@ -527,45 +527,34 @@ public final class MenuReserva extends javax.swing.JDialog {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        if (calculado) {
-            try {
-                inicialiarReserva();
-
-                if (reservaControlador.insertarReservas(reserva) == 1) {
-
-                    if (asignarHabitaciones() == 1) {
-                        JOptionPane.showMessageDialog(this, "Reserva registrada con éxito");
-                        this.dispose();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Reserva no registrada, Cliente " + txtDni.getText() + " no ha sido registrado");
-                }
-            } catch (java.lang.NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
-            } catch (SQLException ex) {
-                Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Por favor calcule el total");
-        }
-    }//GEN-LAST:event_btnGuardarActionPerformed
-
-    private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
-        if (validar()) {
-            if (cmbHabitaciones2.getItemCount() > 0) {
+        if (JOptionPane.showConfirmDialog(this, "¿Va a crear una reserva, está seguro?") == 0) {
+            calcularTotal();
+            if (calculado) {
                 try {
                     inicialiarReserva();
-                    CalculoReserva cr = new CalculoReserva(null, true, reserva, cmbHabitaciones2.getItemCount());
-                    txtCalculo.setText("$" + cr.getCalculo());
-                    calculado = true;
-                    cr.setVisible(true);
+
+                    if (reservaControlador.insertarReservas(reserva) == 1) {
+
+                        if (asignarHabitaciones() == 1) {
+                            JOptionPane.showMessageDialog(this, "Reserva registrada con éxito");
+                            this.dispose();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Reserva no registrada, Cliente " + txtDni.getText() + " no ha sido registrado");
+                    }
+                } catch (java.lang.NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
                 } catch (SQLException ex) {
                     Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas para calcular el total");
+                JOptionPane.showMessageDialog(this, "Por favor calcule el total");
             }
         }
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
+        calcularTotal();
     }//GEN-LAST:event_btnCalcularActionPerformed
 
     private void btnAsignarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsignarActionPerformed
@@ -620,15 +609,37 @@ public final class MenuReserva extends javax.swing.JDialog {
         reservaControlador = new Datos_Reserva(this.conexion);
     }
 
+    public void calcularTotal() {
+        if (validar()) {
+            if (cmbHabitaciones2.getItemCount() > 0) {
+                try {
+                    inicialiarReserva();
+                    CalculoReserva cr = new CalculoReserva(null,this.conexion, reserva, cmbHabitaciones2);
+                    txtCalculo.setText("$" + cr.getCalculo());
+                    calculado = true;
+                    cr.setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas para calcular el total");
+            }
+        }
+    }
+
     public boolean validar() {
         if (validador.validarVacio(txtDni)) {
             return true;
         } else {
-            JOptionPane.showMessageDialog(this,"El campo de texto DNI está vacío");
+            JOptionPane.showMessageDialog(this, "El campo de texto DNI está vacío");
             return false;
         }
     }
 
+    public Conexion getConexion(){
+        return this.conexion;
+    }
+    
     /**
      * @param args the command line arguments
      */

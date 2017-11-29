@@ -12,7 +12,7 @@ import java.sql.ResultSet;
  *
  * @author ALBERT
  */
-public class Datos_Hotel extends Datos{
+public class Datos_Hotel extends Datos {
 
     public Datos_Hotel(Conexion conexion) {
         this.dt = conexion;
@@ -31,7 +31,15 @@ public class Datos_Hotel extends Datos{
 
     @Override
     public ResultSet consultarTodo() {
-        String consulta = "select * from HOTEL ORDER BY HOTID ";
+        String consulta = "select hotel.HOTID as \"Identificación del Hotel\",\n"
+                + "ciudad.CIUNOMBRE as \"Ciudad\",\n"
+                + "(select empnombre\n"
+                + "from empleado\n"
+                + "where empdni = hotel.empdni) as \"Empleado a cargo\",\n"
+                + "hotel.CATID as \"Estrellas\",\n"
+                + "HOTNOMBRE as \"Nombre Hotel\",\n"
+                + "HOTDIRECCION as \"Dirección\"\n"
+                + "from hotel join ciudad on hotel.ciuid = ciudad.ciuid";
         ResultSet result = dt.ejecutarSELECT(consulta);
         return result;
     }

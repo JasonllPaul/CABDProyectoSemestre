@@ -5,8 +5,14 @@
  */
 package Interfaz.Submenu;
 
+import Datos.Conexion;
+import Datos.Datos_Habitacion;
 import Modelo.Modelo_Reserva;
 import com.sun.glass.events.KeyEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -14,34 +20,49 @@ import com.sun.glass.events.KeyEvent;
  */
 public final class CalculoReserva extends javax.swing.JDialog {
 
-    private final double PERSONA = 32000, HABITACION = 15000, DIAS = 12500;
+    private static final double PERSONA = 32000;
+    private static final double HABITACION = 15000;
+
+    private static double DIAS = 12500;
     private double calculo;
     private int dias;
-    private Modelo_Reserva reserva;
+    private final Modelo_Reserva reserva;
+    private Datos_Habitacion habitacionControlador;
 
     /**
      * Creates new form CalculoReserva
      *
      * @param parent
-     * @param modal
+     * @param conexion
      * @param reserva
      * @param habitaciones
      */
-    public CalculoReserva(java.awt.Frame parent, boolean modal, Modelo.Modelo_Reserva reserva, int habitaciones) {
-        super(parent, modal);
+    public CalculoReserva(java.awt.Frame parent, Conexion conexion, Modelo.Modelo_Reserva reserva, javax.swing.JComboBox habitaciones) {
+        super(parent, true);
         initComponents();
         dias = 0;
+        habitacionControlador = new Datos_Habitacion(conexion);
         this.reserva = reserva;
         if (reserva.getResFechaFin() != null) {
             dias = (int) ((reserva.getResFechaFin().getTime() - reserva.getResFechaInicio().getTime()) / 86400000);
             System.out.println("Hay " + dias + " dias de diferencia");
         }
-        calcular(reserva.getResPersonas(), habitaciones);
+        double valor2 = 0;
+        for (int i = 0; i < habitaciones.getItemCount(); i++) {
+            ResultSet res = habitacionControlador.consultarPrecio(Integer.parseInt(habitaciones.getItemAt(i).toString()));
+            try {
+                while (res.next()) {
+                    valor2 += Double.parseDouble(res.getString("Precio"));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(CalculoReserva.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        calcular(reserva.getResPersonas(), habitaciones.getItemCount(),valor2);
     }
 
-    public void calcular(int nPersonas, int nHabitaciones) {
+    public void calcular(int nPersonas, int nHabitaciones, double valor2) {
         double valor1 = (PERSONA * nPersonas);
-        double valor2 = (HABITACION * nHabitaciones);
         double valor3 = (DIAS * dias);
 
         lblPersonas.setText("Total por personas (" + nPersonas + ") :");
@@ -230,7 +251,7 @@ public final class CalculoReserva extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                CalculoReserva dialog = new CalculoReserva(new javax.swing.JFrame(), true, null, 0);
+                CalculoReserva dialog = new CalculoReserva(new javax.swing.JFrame(), null, null, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

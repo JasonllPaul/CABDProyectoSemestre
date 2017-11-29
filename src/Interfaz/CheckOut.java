@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import utilidades.Validador;
 
@@ -72,13 +73,14 @@ public final class CheckOut extends javax.swing.JDialog {
                 Logger.getLogger(CheckOut.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            int nHabitaciones = 0;
-            ResultSet res = consultasControlador.joinReservaComprende(reserva.getResId());
+            ResultSet res = null;
+            javax.swing.JComboBox cmb = new JComboBox();
+            res = habitacionControlador.consultarHabitaciones(reserva.getResId());
             while (res.next()) {
-                nHabitaciones = Integer.parseInt(res.getObject("Número de habitaciones").toString());
+                cmb.addItem(res.getString("HABID").trim());
             }
-
-            CalculoReserva cr = new CalculoReserva(null, true, reserva, nHabitaciones);
+            
+            CalculoReserva cr = new CalculoReserva(null,this.conexion, reserva,cmb);
             cr.setVisible(encontrado);
             reserva.setResestado("Finalizado");
             if (reservaControlador.checkout(reserva) == 1) {
