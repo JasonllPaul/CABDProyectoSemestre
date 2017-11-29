@@ -63,7 +63,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         btnReserva = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblReserva = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -73,6 +72,10 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuItem5 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -137,15 +140,6 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         escritorio.add(btnReserva);
         btnReserva.setBounds(620, 280, 90, 30);
 
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-        escritorio.add(jButton1);
-        jButton1.setBounds(370, 290, 73, 23);
-
         tblReserva.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -200,7 +194,30 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem4);
 
+        jMenu4.setText("Reserva");
+
+        jMenuItem5.setText("Crear Reserva");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem5ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem5);
+
+        jMenuItem6.setText("Check-Out");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem6);
+
+        jMenu2.add(jMenu4);
+
         jMenuBar1.add(jMenu2);
+
+        jMenu3.setText("Buscar");
+        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
@@ -264,9 +281,9 @@ public final class MenuPrincipal extends javax.swing.JFrame {
 
     private void tblInformacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInformacionMouseClicked
         try {
-            if ( (evt.getButton() == 3) && (tblInformacion.getSelectedRow()!= -1) ) { // 3 es click derecho
+            if ((evt.getButton() == 3) && (tblInformacion.getSelectedRow() != -1)) { // 3 es click derecho
                 reservarHotel();
-                SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(), this.hotelSeleccionado,conexion);
+                SubMenuHotel sm = new SubMenuHotel(evt.getLocationOnScreen(), this.hotelSeleccionado, conexion);
                 sm.setVisible(true);
             }
         } catch (Exception e) {
@@ -278,19 +295,34 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         try {
             reservarHotel();
 
-            MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado,this.conexion);
+            MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado, this.conexion);
             mr.setVisible(true);
         } catch (NullPointerException e) {
             System.out.println("No ha seleccionado una fila de hotel");
         }
     }//GEN-LAST:event_btnReservaActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        crearReserva();
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
 
-        
-        
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+        CheckOut ic = new CheckOut(this, true, null, conexion);
+        ic.setVisible(true);
+
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+
+    public void crearReserva() {
+        try {
+            reservarHotel();
+
+            MenuReserva mr = new MenuReserva(this, true, hotelSeleccionado, this.conexion);
+            mr.setVisible(true);
+        } catch (NullPointerException e) {
+            System.out.println("No ha seleccionado una fila de hotel");
+        }
+    }
 
     public static void registrar(Modelo modelo) {
 
@@ -316,7 +348,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
         }
     }
 
-    private static DefaultTableModel ConstruirModeloDeDatos(ResultSet rs) throws SQLException {
+    public static DefaultTableModel ConstruirModeloDeDatos(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
         Vector<String> columnNames = new Vector<>();
         int columnCount = metaData.getColumnCount();
@@ -351,6 +383,7 @@ public final class MenuPrincipal extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
         }
     }
+
     /**
      * @param args the command line arguments
      */
@@ -362,15 +395,18 @@ public final class MenuPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnReserva;
     private javax.swing.JLayeredPane escritorio;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

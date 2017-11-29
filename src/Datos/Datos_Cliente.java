@@ -46,19 +46,6 @@ public class Datos_Cliente extends Datos{
         consulta="update CLIENTE SET CLINOMBRE = '%s',CLIAPELLIDO = '%s' where CLIDNI = %s ";
         
         }
-        /*else{
-            
-            if(cl.getCliNombre().length()>0 && cl.getCliApellido().length()==0){
-                consulta="update CLIENTE SET CLINOMBRE = '%s' where CLIDNI = %s ";
-                consulta = String.format(consulta,cl.getCliNombre(),cl.getCliDni());
-            }
-            if(cl.getCliNombre().length()==0 && cl.getCliApellido().length()>0){
-                consulta="update CLIENTE SET CLIAPELLIDO = '%s' where CLIDNI = %s ";
-                consulta = String.format(consulta,cl.getCliApellido(),cl.getCliDni());
-            }
-    
-        }*/  //se comenta debido a que estos campos nunca seran nulos
-               
         int result = dt.ejecutarDML(consulta);
         
         return result;

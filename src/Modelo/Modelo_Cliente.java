@@ -14,8 +14,9 @@ public class Modelo_Cliente {
     private String cliNombre;
     private String cliApellido;
 
-   // public Modelo_Cliente() {
-    //}
+    public Modelo_Cliente() {
+        cliDni = 0;
+    }
     
     public Modelo_Cliente(int cliDni, String cliNombre, String cliApellido) {
         this.cliDni = cliDni;

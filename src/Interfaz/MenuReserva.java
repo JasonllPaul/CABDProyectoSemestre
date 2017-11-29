@@ -6,13 +6,16 @@
 package Interfaz;
 
 import Datos.Conexion;
+import Datos.Datos_Cliente;
 import Datos.Datos_Comprende;
 import Datos.Datos_Habitacion;
 import Datos.Datos_Reserva;
 import Interfaz.Submenu.CalculoReserva;
+import Modelo.Modelo_Cliente;
 import Modelo.Modelo_Comprende;
 import Modelo.Modelo_Habitacion;
 import Modelo.Modelo_Reserva;
+import java.awt.Color;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import utilidades.Validador;
 
 /**
  *
@@ -34,7 +38,9 @@ public final class MenuReserva extends javax.swing.JDialog {
     Datos_Habitacion habitacionControlador;
     Datos_Comprende comprendeControlador;
     Datos_Reserva reservaControlador;
+    Datos_Cliente clienteControlador;
     Conexion conexion;
+    Validador validador;
     boolean calculado;
 
     /**
@@ -48,6 +54,7 @@ public final class MenuReserva extends javax.swing.JDialog {
     public MenuReserva(java.awt.Frame parent, boolean modal, Modelo.Modelo_Hotel hotel, Conexion conexion) {
         super(parent, modal);
         initComponents();
+        this.validador = new Validador();
         this.calculado = false;
         this.hotel = hotel;
         this.conexion = conexion;
@@ -58,6 +65,29 @@ public final class MenuReserva extends javax.swing.JDialog {
         lblTitulo2.setText(hotel.getHotId() + ". " + hotel.getHotNombre().trim());
         cargarFechas();
         cargarCombo(cmbHabitaciones);
+    }
+
+    public int buscarCliente() {
+        ArrayList<String> array = new ArrayList<>();
+        if (txtDni.getText().length() > 0) {
+            Modelo_Cliente cliente = new Modelo_Cliente();
+            try {
+                cliente.setCliDni(Integer.parseInt(txtDni.getText()));
+            } catch (java.lang.NumberFormatException e) {
+                System.out.println("Excepción: " + e.getMessage());
+            }
+            clienteControlador = new Datos_Cliente(this.conexion);
+            ResultSet resTodos = clienteControlador.buscarRegistroClientes(cliente);
+
+            try {
+                while (resTodos.next()) {
+                    array.add(resTodos.getObject("CLIDNI").toString());
+                }
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+        return array.size();
     }
 
     public void cargarCombo(JComboBox<String> cmb) {
@@ -155,6 +185,7 @@ public final class MenuReserva extends javax.swing.JDialog {
         lblDisponibles = new javax.swing.JLabel();
         lblAsignadas = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        lblEstadoDni = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -189,7 +220,13 @@ public final class MenuReserva extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
-        txtDni.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        txtDni.setFont(new java.awt.Font("Arial", 0, 13)); // NOI18N
+        txtDni.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtDni.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtDniKeyReleased(evt);
+            }
+        });
 
         lblDni.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblDni.setText("DNI Cliente:");
@@ -208,6 +245,7 @@ public final class MenuReserva extends javax.swing.JDialog {
         btnGuardar.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         btnGuardar.setForeground(new java.awt.Color(255, 255, 255));
         btnGuardar.setText("+ Crear");
+        btnGuardar.setFocusable(false);
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
@@ -218,6 +256,7 @@ public final class MenuReserva extends javax.swing.JDialog {
         btnCancelar.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         btnCancelar.setForeground(new java.awt.Color(255, 255, 255));
         btnCancelar.setText("Cancelar");
+        btnCancelar.setFocusable(false);
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelarActionPerformed(evt);
@@ -243,7 +282,7 @@ public final class MenuReserva extends javax.swing.JDialog {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(dateInicio, javax.swing.GroupLayout.DEFAULT_SIZE, 169, Short.MAX_VALUE)
                     .addComponent(dateFin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,6 +315,7 @@ public final class MenuReserva extends javax.swing.JDialog {
         btnCalcular.setFont(new java.awt.Font("Arial", 1, 11)); // NOI18N
         btnCalcular.setForeground(new java.awt.Color(255, 255, 255));
         btnCalcular.setText("Calcular");
+        btnCalcular.setFocusable(false);
         btnCalcular.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCalcularActionPerformed(evt);
@@ -283,15 +323,22 @@ public final class MenuReserva extends javax.swing.JDialog {
         });
 
         cmbHabitaciones2.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        cmbHabitaciones2.setFocusable(false);
 
-        btnAsignar.setText("->");
+        btnAsignar.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        btnAsignar.setForeground(new java.awt.Color(0, 102, 204));
+        btnAsignar.setText("→");
+        btnAsignar.setFocusable(false);
         btnAsignar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAsignarActionPerformed(evt);
             }
         });
 
-        btnDesasignar.setText("<-");
+        btnDesasignar.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        btnDesasignar.setForeground(new java.awt.Color(255, 102, 102));
+        btnDesasignar.setText("←");
+        btnDesasignar.setFocusable(false);
         btnDesasignar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDesasignarActionPerformed(evt);
@@ -299,6 +346,7 @@ public final class MenuReserva extends javax.swing.JDialog {
         });
 
         cmbHabitaciones.setFont(new java.awt.Font("Arial", 0, 11)); // NOI18N
+        cmbHabitaciones.setFocusable(false);
 
         lblDisponibles.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         lblDisponibles.setText("Disponibles");
@@ -308,16 +356,17 @@ public final class MenuReserva extends javax.swing.JDialog {
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 13)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("HABITACIONES");
+        jLabel2.setText("Asignar Habitación");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(32, 32, 32)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(lblDisponibles)
@@ -333,11 +382,8 @@ public final class MenuReserva extends javax.swing.JDialog {
                                 .addComponent(cmbHabitaciones2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(19, 19, 19)
-                                .addComponent(lblAsignadas))))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(99, 99, 99)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(lblAsignadas)))))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -365,60 +411,54 @@ public final class MenuReserva extends javax.swing.JDialog {
                         .addContainerGap())))
         );
 
+        lblEstadoDni.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        lblEstadoDni.setForeground(new java.awt.Color(0, 153, 51));
+        lblEstadoDni.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
         javax.swing.GroupLayout panelEscritorioLayout = new javax.swing.GroupLayout(panelEscritorio);
         panelEscritorio.setLayout(panelEscritorioLayout);
         panelEscritorioLayout.setHorizontalGroup(
             panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelEscritorioLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(panelTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE))
-                .addGap(265, 265, 265))
             .addGroup(panelEscritorioLayout.createSequentialGroup()
                 .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(panelEscritorioLayout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(btnCancelar)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnGuardar))
-                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelEscritorioLayout.createSequentialGroup()
-                                .addGap(174, 174, 174)
-                                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                        .addComponent(txtCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnCalcular)))
-                                .addGap(33, 33, 33))
-                            .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                        .addGap(145, 145, 145)
-                                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(lblNumeroPersonas, javax.swing.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
-                                            .addComponent(lblDni, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelEscritorioLayout.createSequentialGroup()
-                                                .addGap(10, 10, 10)
-                                                .addComponent(cmbPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                    .addGroup(panelEscritorioLayout.createSequentialGroup()
-                                        .addGap(51, 51, 51)
-                                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelEscritorioLayout.createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(32, 32, 32))))
                     .addGroup(panelEscritorioLayout.createSequentialGroup()
-                        .addGap(130, 130, 130)
-                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(240, 240, 240)
+                        .addComponent(btnCancelar)
+                        .addGap(42, 42, 42)
+                        .addComponent(btnGuardar))
+                    .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(panelTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(88, 88, 88)
+                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelEscritorioLayout.createSequentialGroup()
+                                .addComponent(txtCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnCalcular))
+                            .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelEscritorioLayout.createSequentialGroup()
+                                    .addGap(20, 20, 20)
+                                    .addComponent(lblDni, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(lblEstadoDni, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txtDni, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))))))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(129, 129, 129)
+                        .addComponent(lblCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(51, 51, 51)
+                        .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(133, 133, 133)
+                        .addComponent(lblNumeroPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(cmbPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelEscritorioLayout.setVerticalGroup(
@@ -429,38 +469,45 @@ public final class MenuReserva extends javax.swing.JDialog {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(11, 11, 11)
-                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblDni, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addGap(13, 13, 13)
+                        .addComponent(lblDni, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelEscritorioLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(4, 4, 4)
+                .addComponent(lblEstadoDni, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cmbPersonas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblNumeroPersonas))
-                .addGap(18, 18, 18)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblCalculo)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(lblCalculo)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCalculo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCalcular))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnGuardar)
-                    .addComponent(btnCancelar))
-                .addGap(20, 20, 20))
+                    .addComponent(btnCancelar)
+                    .addComponent(btnGuardar))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelEscritorio, javax.swing.GroupLayout.PREFERRED_SIZE, 524, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(panelEscritorio, javax.swing.GroupLayout.PREFERRED_SIZE, 524, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -487,32 +534,33 @@ public final class MenuReserva extends javax.swing.JDialog {
                         this.dispose();
                     }
                 } else {
-                    System.out.println("Reserva no registrada");
+                    JOptionPane.showMessageDialog(this, "Reserva no registrada, Cliente " + txtDni.getText() + " no ha sido registrado");
                 }
             } catch (java.lang.NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Ingrese el DNI del cliente correctamente");
             } catch (SQLException ex) {
                 Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        else{
-            JOptionPane.showMessageDialog(this,"Por favor calcule el total");
+        } else {
+            JOptionPane.showMessageDialog(this, "Por favor calcule el total");
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
-
-        if (cmbHabitaciones2.getItemCount() > 0) {
-            try {
-                inicialiarReserva();
-                CalculoReserva cr = new CalculoReserva(null, true, reserva, cmbHabitaciones2.getItemCount());
-                txtCalculo.setText("$"+cr.getCalculo());
-                cr.setVisible(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
+        if (validar()) {
+            if (cmbHabitaciones2.getItemCount() > 0) {
+                try {
+                    inicialiarReserva();
+                    CalculoReserva cr = new CalculoReserva(null, true, reserva, cmbHabitaciones2.getItemCount());
+                    txtCalculo.setText("$" + cr.getCalculo());
+                    calculado = true;
+                    cr.setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(MenuReserva.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas para calcular el total");
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No hay habitaciones asignadas para calcular el total");
         }
     }//GEN-LAST:event_btnCalcularActionPerformed
 
@@ -535,6 +583,24 @@ public final class MenuReserva extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnDesasignarActionPerformed
 
+    private void txtDniKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDniKeyReleased
+
+        validador.validarTamanio(txtDni);
+
+        if (buscarCliente() == 1) {
+            lblEstadoDni.setForeground(new Color(0, 153, 51));
+            lblEstadoDni.setText("Cliente registrado");
+        } else {
+            lblEstadoDni.setForeground(Color.red);
+            lblEstadoDni.setText("DNI no encontrado");
+        }
+
+        if (!validador.validarVacio(txtDni)) {
+            lblEstadoDni.setText("");
+        }
+
+    }//GEN-LAST:event_txtDniKeyReleased
+
     public void inicialiarReserva() throws SQLException {
         ResultSet res = reservaControlador.selectSequence(); // Obtiene el valor del autoincremental para la llave primaria
         ArrayList<String> array = new ArrayList<>();
@@ -546,8 +612,17 @@ public final class MenuReserva extends javax.swing.JDialog {
         reserva.setResFechaInicio(dateInicio.getDate());
         reserva.setResFechaFin(dateFin.getDate());
         reserva.setHotId(hotel.getHotId());
-        reserva.setRestotal(Float.parseFloat(txtCalculo.getText().replace("$","")));
+        reserva.setRestotal(Float.parseFloat(txtCalculo.getText().replace("$", "")));
         reservaControlador = new Datos_Reserva(this.conexion);
+    }
+
+    public boolean validar() {
+        if (validador.validarVacio(txtDni)) {
+            return true;
+        } else {
+            JOptionPane.showMessageDialog(this,"El campo de texto DNI está vacío");
+            return false;
+        }
     }
 
     /**
@@ -613,6 +688,7 @@ public final class MenuReserva extends javax.swing.JDialog {
     private javax.swing.JLabel lblCalculo;
     private javax.swing.JLabel lblDisponibles;
     private javax.swing.JLabel lblDni;
+    private javax.swing.JLabel lblEstadoDni;
     private javax.swing.JLabel lblFechaFin;
     private javax.swing.JLabel lblFechaInicio;
     private javax.swing.JLabel lblNumeroPersonas;
